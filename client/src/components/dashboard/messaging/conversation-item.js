@@ -3,15 +3,16 @@ import React, { Component } from 'react';
 class ConversationItem extends Component {
   render() {
     return (
-      <div className="message">
-        <a href={`/dashboard/conversation/view/${this.props.conversationId}`}>
-          <span className="message-body">{this.props.message}</span>
-          <br />
-          <span className="message-byline">From {this.props.author} | {this.props.timestamp}</span>
+        <a href={`/dashboard/conversation/view/${this.props.conversationId}`} className="list-group-item list-group-item-action flex-column align-items-start">
+          <div className="d-flex w-100 justify-content-between">
+            <h5 className="mb-1">{this.props.author}</h5>
+            <small>{this.props.timestamp}</small>
+          </div>
+          <p className="mb-1">{this.props.message}</p>
         </a>
-      </div>
     );
   }
 }
+
 
 export default ConversationItem;

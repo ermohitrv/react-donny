@@ -1,7 +1,6 @@
-const ROLE_MEMBER = require('./constants').ROLE_MEMBER;
-const ROLE_CLIENT = require('./constants').ROLE_CLIENT;
-const ROLE_OWNER = require('./constants').ROLE_OWNER;
 const ROLE_ADMIN = require('./constants').ROLE_ADMIN;
+const ROLE_EXPERT = require('./constants').ROLE_EXPERT;
+const ROLE_USER = require('./constants').ROLE_USER;
 
 // Set user info from request
 exports.setUserInfo = function setUserInfo(request) {
@@ -10,6 +9,7 @@ exports.setUserInfo = function setUserInfo(request) {
     firstName: request.profile.firstName,
     lastName: request.profile.lastName,
     email: request.email,
+    slug: request.slug,
     role: request.role
   };
 
@@ -20,10 +20,9 @@ exports.getRole = function getRole(checkRole) {
   let role;
 
   switch (checkRole) {
-    case ROLE_ADMIN: role = 4; break;
-    case ROLE_OWNER: role = 3; break;
-    case ROLE_CLIENT: role = 2; break;
-    case ROLE_MEMBER: role = 1; break;
+    case ROLE_USER: role = 3; break;
+    case ROLE_EXPERT: role = 2; break;
+    case ROLE_ADMIN: role = 1; break;
     default: role = 1;
   }
 

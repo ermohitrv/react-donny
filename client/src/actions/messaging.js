@@ -2,11 +2,14 @@ import { reset } from 'redux-form';
 import { browserHistory } from 'react-router';
 import { getData, postData, putData, deleteData } from './index';
 import io from 'socket.io-client';
-import { CHAT_ERROR, FETCH_CONVERSATIONS, FETCH_RECIPIENTS, START_CONVERSATION, SEND_REPLY, FETCH_SINGLE_CONVERSATION } from './types';
+import { CHAT_ERROR, FETCH_CONVERSATIONS, FETCH_RECIPIENTS, START_CONVERSATION, SEND_REPLY, FETCH_SINGLE_CONVERSATION, FETCH_EXPERT_SINGLE_CONVERSATION } from './types';
 
 // Connect to socket.io server
 export const socket = io.connect('http://localhost:3000');
-
+console.log('messaging file');
+socket.on('disconnect', function () {
+  socket.emit('disconnect');
+});
 
 //= ===============================
 // Messaging actions
@@ -47,5 +50,33 @@ export function sendReply(replyTo, { composedMessage }) {
     // Clear form after message is sent
     dispatch(reset('replyMessage'));
     socket.emit('new message', replyTo);
+  };
+}
+
+
+//= ===============================
+// Expert-Session Messaging actions
+//= ===============================
+
+export function FetchExpertConversation(sessionOwnerUsername) {
+  const url = `/expertchat/fetchSessionChat/${sessionOwnerUsername}`;
+  return dispatch => getData(FETCH_EXPERT_SINGLE_CONVERSATION, CHAT_ERROR, true, url, dispatch);
+}
+
+export function ExpertSessionUserDisconnected(sessionOwnerUsername,currentTimer) {
+  const url = `/expertchat/fetchSessionChat/${sessionOwnerUsername}`;
+  return dispatch => getData(FETCH_EXPERT_SINGLE_CONVERSATION, CHAT_ERROR, true, url, dispatch);
+}
+
+export function ExpertSendReply(sessionOwnerUsername, messageReceiverEmail, messageSenderEmail, composedMessage) {
+  const data = {sessionOwnerUsername, messageReceiverEmail, messageSenderEmail, composedMessage };
+  const url = `/expertchat/expertsessionchat`;
+  return (dispatch) => {
+    postData(SEND_REPLY, CHAT_ERROR, true, url, dispatch, data);
+
+    // Clear form after message is sent
+    dispatch(reset('replyMessage'));
+    console.log('client replyMessage sessionOwnerUsername : '+sessionOwnerUsername);
+    socket.emit('expert new message', sessionOwnerUsername);
   };
 }

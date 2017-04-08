@@ -12,7 +12,7 @@ class CheckoutForm extends Component {
     super(props);
 
     this.state = {
-      stripePublicKey: 'pk_test_XXXXXXXXXXXXXXXXXXXXXXXX',
+      stripePublicKey: 'pk_test_s744wYvqQUrpqsXGLnUBUFRw',
       cardNumber: '',
       expMonth: '',
       expYear: '',

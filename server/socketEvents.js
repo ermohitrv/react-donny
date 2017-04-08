@@ -1,25 +1,66 @@
+var line_history = [];
 exports = module.exports = function (io) {
   // Set socket.io listeners.
   io.on('connection', (socket) => {
-    // console.log('a user connected');
+     console.log('_________________a user connected_________________');
+
+    // first send the history to the new client
+    for (var i in line_history) {
+      console.log('_____________ draw_line _____________ ');
+      socket.emit('draw_line', { line: line_history[i] } );
+    }
+    // add handler for message type "draw_line".
+    socket.on('draw_line', function (data) {
+      console.log('** ** ** ** server : draw_line ** ** ** **');
+      // add received line to history
+      line_history.push(data.line);
+      // send line to all clients
+      io.emit('draw_line', { line: data.line });
+    });
 
     // On conversation entry, join broadcast channel
     socket.on('enter conversation', (conversation) => {
       socket.join(conversation);
-      // console.log('joined ' + conversation);
-    });
+       console.log('joined ' + conversation);
+     });
 
     socket.on('leave conversation', (conversation) => {
       socket.leave(conversation);
-      // console.log('left ' + conversation);
+       console.log('left ' + conversation);
     });
 
     socket.on('new message', (conversation) => {
+      console.log('new message: '+ JSON.stringify(conversation));
       io.sockets.in(conversation).emit('refresh messages', conversation);
     });
 
     socket.on('disconnect', () => {
-      // console.log('user disconnected');
+       console.log('_________________user disconnected_________________');
+    });
+
+    /* expert session socket functions */
+
+    // On conversation entry, join broadcast channel
+    socket.on('expert enter session', (sessionOwnerUsername) => {
+      socket.join(sessionOwnerUsername);
+       console.log('server side : joined ' + sessionOwnerUsername);
+    });
+
+    socket.on('expert leave session', (sessionOwnerUsername) => {
+      socket.leave(sessionOwnerUsername);
+       console.log('server side : left ' + sessionOwnerUsername);
+    });
+
+    socket.on('expert new message', (sessionOwnerUsername) => {
+      console.log('server side : ***** ***** ***** expert new message: '+ JSON.stringify(sessionOwnerUsername));
+      io.sockets.in(sessionOwnerUsername).emit('refresh expert session messages', sessionOwnerUsername);
+    });
+
+    /*event fires when any user leave the session page*/
+    socket.on('expert user disconnected', (sessionOwnerUsername) => {
+      line_history = [];
+      console.log('server side : ***** ***** *****  expert user disconnected '+sessionOwnerUsername);
+      io.sockets.in(sessionOwnerUsername).emit('expert user disconnected', sessionOwnerUsername);
     });
   });
 };

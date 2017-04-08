@@ -27,6 +27,60 @@ exports.login = function (req, res, next) {
   });
 };
 
+//= =======================================
+// Facebook Route
+//= =======================================
+exports.facebookSendJWTtoken = function (req, res, next) {
+  console.log('** ** **  token : '+JSON.stringify(req.params));
+  if(req.body.token){
+    User.findOne({ jwtLoginAccessToken : req.body.token }, (err, userInfo) => {
+      if(userInfo){
+        setUserInfo(userInfo);
+        res.status(200).json({
+          token: userInfo.jwtLoginAccessToken,
+          user: userInfo
+        });
+      }else{
+        res.status(200).json({
+          token: "",
+          user: ""
+        });
+      }
+    });
+  }else{
+    res.status(200).json({
+      token: "",
+      user: ""
+    });
+  }
+};
+
+//= =======================================
+// Twitter Route
+//= =======================================
+exports.twitterSendJWTtoken = function (req, res, next) {
+  if(req.body.token){
+    User.findOne({ jwtLoginAccessToken : req.body.token }, (err, userInfo) => {
+      if(userInfo){
+        setUserInfo(userInfo);
+        res.status(200).json({
+          token: userInfo.jwtLoginAccessToken,
+          user: userInfo
+        });
+      }else{
+        res.status(200).json({
+          token: "",
+          user: ""
+        });
+      }
+    });
+  }else{
+    res.status(200).json({
+      token: "",
+      user: ""
+    });
+  }
+};
 
 //= =======================================
 // Registration Route
@@ -37,7 +91,7 @@ exports.register = function (req, res, next) {
   const firstName = req.body.firstName;
   const lastName = req.body.lastName;
   const password = req.body.password;
-
+  const slug = req.body.firstName+'-'+req.body.lastName;
   // Return error if no email provided
   if (!email) {
     return res.status(422).send({ error: 'You must enter an email address.' });
@@ -56,7 +110,9 @@ exports.register = function (req, res, next) {
   User.findOne({ email }, (err, existingUser) => {
     if (err) { return next(err); }
 
-      // If user is not unique, return error
+    //slug = firstName+'-'+new Date().getUTCMilliseconds();
+
+    // If user is not unique, return error
     if (existingUser) {
       return res.status(422).send({ error: 'That email address is already in use.' });
     }
@@ -65,7 +121,8 @@ exports.register = function (req, res, next) {
     const user = new User({
       email,
       password,
-      profile: { firstName, lastName }
+      profile: { firstName, lastName },
+      slug
     });
 
     user.save((err, user) => {

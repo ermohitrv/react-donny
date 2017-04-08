@@ -15,7 +15,7 @@ class ConversationList extends Component {
     const currentUser = this.userCookie._id;
 
     return (
-      <div className="messages">
+      <div>
         {this.props.conversations.map(data => data.map(message => (
           <ConversationItem
             key={message._id}

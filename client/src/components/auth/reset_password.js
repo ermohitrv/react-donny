@@ -4,27 +4,8 @@ import { Field, reduxForm } from 'redux-form';
 import { resetPassword } from '../../actions/auth';
 
 const form = reduxForm({
-  form: 'resetPassword',
-  validate,
+  form: 'resetPassword'
 });
-
-function validate(formProps) {
-  const errors = {};
-
-  if (!formProps.password) {
-    errors.password = 'Please enter a new password';
-  }
-
-  if (!formProps.passwordConfirm) {
-    errors.passwordConfirm = 'Please confirm new password';
-  }
-
-  if (formProps.password !== formProps.passwordConfirm) {
-    errors.password = 'Passwords must match';
-  }
-
-  return errors;
-}
 
 const renderField = field => (
   <div>
@@ -37,7 +18,7 @@ class ResetPassword extends Component {
   static contextTypes = {
     router: React.PropTypes.object,
   }
-
+  
   componentWillMount() {
     if (this.props.authenticated) {
       this.context.router.push('/dashboard');
@@ -75,12 +56,11 @@ class ResetPassword extends Component {
     const { handleSubmit } = this.props;
 
     return (
-      <form onSubmit={handleSubmit(this.handleFormSubmit.bind(this))}>
+      <form id="reset_form" onSubmit={handleSubmit(this.handleFormSubmit.bind(this))}>
         <fieldset className="form-group">
           <label>New Password:</label>
           <Field name="password" component={renderField} type="password" />
         </fieldset>
-
         <fieldset className="form-group">
           <label>Confirm New Password:</label>
           <Field name="passwordConfirm" component={renderField} type="password" />

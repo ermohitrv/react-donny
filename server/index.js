@@ -6,7 +6,8 @@ const express = require('express'),
   router = require('./router'),
   mongoose = require('mongoose'),
   socketEvents = require('./socketEvents'),
-  config = require('./config/main');
+  config = require('./config/main'),
+  passport    = require('passport');
 
 // Database Setup
 mongoose.connect(config.database);
@@ -20,7 +21,6 @@ if (process.env.NODE_ENV != config.test_env) {
   server = app.listen(config.test_port);
 }
 
-
 const io = require('socket.io').listen(server);
 
 socketEvents(io);
@@ -33,14 +33,18 @@ app.use(bodyParser.urlencoded({ extended: false })); // Parses urlencoded bodies
 app.use(bodyParser.json()); // Send JSON responses
 app.use(logger('dev')); // Log requests to API using morgan
 
+//require('./config/passport')(passport);
+
 // Enable CORS from client-side
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'http://localhost:8080');
+  res.header('Access-Control-Allow-Origin', config.website_url);
   res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Access-Control-Allow-Credentials');
   res.header('Access-Control-Allow-Credentials', 'true');
   next();
 });
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Import routes to be served
 router(app);

@@ -9,7 +9,7 @@ const form = reduxForm({
 
 const renderField = field => (
   <div>
-    <input className="form-control" autoComplete="off" {...field.input} />
+    <textarea required rows="3" autoComplete="off" placeholder="Your message here" className="form-control" {...field.input} ></textarea>
   </div>
 );
 
@@ -40,8 +40,12 @@ class ReplyMessage extends Component {
     return (
       <form onSubmit={handleSubmit(this.handleFormSubmit.bind(this))}>
         {this.renderAlert()}
-        <Field name="composedMessage" className="form-control" component={renderField} type="text" placeholder="Type here to chat..." />
-        <button action="submit" className="btn btn-primary">Send</button>
+        <div className="form-group">
+          <Field name="composedMessage" className="form-control" component={renderField} type="text" placeholder="Type here to chat..." />
+        </div>
+        <div className="form-group">
+          <button action="submit" className="btn btn-primary">Send</button>
+        </div>
       </form>
     );
   }

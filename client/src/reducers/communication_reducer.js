@@ -1,4 +1,4 @@
-import { FETCH_CONVERSATIONS, SEND_CONTACT_FORM, SEND_REPLY, START_CONVERSATION, FETCH_SINGLE_CONVERSATION, FETCH_RECIPIENTS, CHAT_ERROR } from '../actions/types';
+import { FETCH_CONVERSATIONS, SEND_CONTACT_FORM, SEND_REPLY, START_CONVERSATION, FETCH_SINGLE_CONVERSATION,FETCH_EXPERT_SINGLE_CONVERSATION, FETCH_RECIPIENTS, CHAT_ERROR } from '../actions/types';
 
 const INITIAL_STATE = { conversations: [], message: '', messages: [], recipients: [], error: '' };
 
@@ -7,6 +7,8 @@ export default function (state = INITIAL_STATE, action) {
     case FETCH_CONVERSATIONS:
       return { ...state, conversations: action.payload.conversations };
     case FETCH_SINGLE_CONVERSATION:
+      return { ...state, messages: action.payload.conversation };
+    case FETCH_EXPERT_SINGLE_CONVERSATION:
       return { ...state, messages: action.payload.conversation };
     case FETCH_RECIPIENTS:
       return { ...state, recipients: action.payload.recipients };

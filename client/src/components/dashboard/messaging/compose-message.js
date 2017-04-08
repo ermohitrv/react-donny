@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { Link,IndexLink } from 'react-router';
 import { Field, reduxForm } from 'redux-form';
 import { fetchRecipients, startConversation } from '../../../actions/messaging';
 
@@ -14,13 +15,12 @@ function validate(formProps) {
   if (!formProps.composedMessage) {
     errors.password = 'Please enter a message';
   }
-
   return errors;
 }
 
-const renderField = field => (
+const renderTextarea = field => (
   <div>
-    <input className="form-control" autoComplete="off" {...field.input} />
+    <textarea required rows="3" placeholder="Your message here" className="form-control" {...field.input} ></textarea>
     {field.touched && field.error && <div className="error">{field.error}</div>}
   </div>
 );
@@ -61,22 +61,67 @@ class ComposeMessage extends Component {
     }
   }
 
+  breadcrumb(){
+    return(
+      <ol className="breadcrumb">
+        <li className="breadcrumb-item"><IndexLink to="/">Home</IndexLink></li>
+        <li className="breadcrumb-item"><Link to="/dashboard">Dashboard</Link></li>
+        <li className="breadcrumb-item">Inbox</li>
+      </ol>
+    );
+  }
+
+  userMenu() {
+    return (
+      <ul className="nav nav-sidebar" id="menu">
+        <li><Link to="/profile/edit"><i className="glyphicon glyphicon-list-alt"></i> <span className="collapse in hidden-xs"> Edit Profile</span></Link></li>
+        <li><Link to="/dashboard/inbox"><i className="glyphicon glyphicon-list-alt"></i> <span className="collapse in hidden-xs"> Inbox</span></Link></li>
+      </ul>
+    );
+  }
+
   render() {
     const { handleSubmit } = this.props;
 
     return (
-      <form onSubmit={handleSubmit(this.handleFormSubmit.bind(this))}>
-        <h2>Start New Conversation</h2>
-        <Field className="form-control" name="recipient" component="select">
-          <option />
-          {this.renderRecipients()}
-        </Field>
-
-        <label>Enter your message below</label>
-        {this.renderAlert()}
-        <Field name="composedMessage" component={renderField} type="text" placeholder="Type here to chat..." />
-        <button action="submit" className="btn btn-primary">Send</button>
-      </form>
+      <div className="session-page">
+        <div className="container">
+          <div className="row">
+            {this.breadcrumb()}
+            <div className="wrapper-sidebar-page">
+              <div className="row row-offcanvas row-offcanvas-left">
+                <div className="column col-sm-3 col-xs-1 sidebar-offcanvas" id="sidebar">
+                  {this.userMenu()}
+                </div>
+                <div className="column col-sm-9 col-xs-11" id="main">
+                  <div id="pageTitle">
+                    <div className="title">Start New Conversation</div>
+                  </div>
+                  <div className="compose-msg-form">
+                    <form onSubmit={handleSubmit(this.handleFormSubmit.bind(this))}>
+                      <div className="form-group">
+                        <label>Choose Recipent</label>
+                        <Field className="form-control" required name="recipient" component="select">
+                          <option />
+                          {this.renderRecipients()}
+                        </Field>
+                      </div>
+                      <div className="form-group">
+                        <label>Enter your message below</label>
+                        {this.renderAlert()}
+                        <Field name="composedMessage" required rows="3" component={renderTextarea} type="text" placeholder="Type here to chat..." />
+                      </div>
+                      <div className="form-group">
+                        <button action="submit" className="btn btn-primary">Send</button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     );
   }
 }

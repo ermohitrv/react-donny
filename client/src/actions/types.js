@@ -20,6 +20,7 @@ export const FETCH_CONVERSATIONS = 'fetch_conversations',
   FETCH_RECIPIENTS = 'fetch_recipients',
   START_CONVERSATION = 'start_conversation',
   FETCH_SINGLE_CONVERSATION = 'fetch_single_conversation',
+  FETCH_EXPERT_SINGLE_CONVERSATION = 'fetch_expert_single_conversation',
   CHAT_ERROR = 'chat_error',
   SEND_REPLY = 'send_reply';
 
@@ -38,3 +39,10 @@ export const CREATE_CUSTOMER = 'create_customer',
   UPDATE_BILLING = 'update_billing',
   BILLING_ERROR = 'billing_error',
   CHANGE_SUBSCRIPTION = 'change_subscription';
+
+//= =====================
+// Expert Actions
+//= =====================
+export const SEND_EXPERT_EMAIL = 'send_expert_email',
+  SEND_EXPERT_TEXT_MESSAGE = 'send_expert_text_message',
+  CREATE_EXPERT = 'create_expert';

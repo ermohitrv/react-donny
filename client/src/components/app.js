@@ -6,12 +6,8 @@ class App extends Component {
   render() {
     return (
       <div>
-        <HeaderTemplate logo="Your Site" />
-
-        <div className="container">
+        <HeaderTemplate logo="Donnys List" />
           {this.props.children}
-        </div>
-
         <FooterTemplate />
       </div>
     );

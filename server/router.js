@@ -1,8 +1,12 @@
 const AuthenticationController = require('./controllers/authentication');
 const UserController = require('./controllers/user');
+const ExpertsController = require('./controllers/experts');
+const VideoSessionController = require('./controllers/videosession');
 const ChatController = require('./controllers/chat');
+const ExpertChatController = require('./controllers/expertchat');
 const CommunicationController = require('./controllers/communication');
 const StripeController = require('./controllers/stripe');
+const VideoSessionStripeController = require('./controllers/video-session-stripe');
 const express = require('express');
 const passport = require('passport');
 const ROLE_MEMBER = require('./constants').ROLE_MEMBER;
@@ -22,8 +26,14 @@ module.exports = function (app) {
     authRoutes = express.Router(),
     userRoutes = express.Router(),
     chatRoutes = express.Router(),
+    expertChatRoutes = express.Router(),
     payRoutes = express.Router(),
+    videoSessionStripeRoutes = express.Router(),
     communicationRoutes = express.Router();
+
+  //= ========================
+  // Experts Routes
+  //= ========================
 
   //= ========================
   // Auth Routes
@@ -31,6 +41,41 @@ module.exports = function (app) {
 
   // Set auth routes as subgroup/middleware to apiRoutes
   apiRoutes.use('/auth', authRoutes);
+
+  //= ========================
+  // Facebook Routes
+  //= ========================
+
+  apiRoutes.get('/auth/facebook', passport.authenticate('facebook', { scope : 'email' }));
+
+  apiRoutes.get('/auth/facebook/callback',
+    passport.authenticate('facebook', { session: false, failureRedirect: "/" }),
+    function(req, res) {
+      res.redirect("http://localhost:5000/login-social/?facebook_token=" + req.user.jwtLoginAccessToken);
+    }
+  );
+
+  apiRoutes.post('/auth/facebook-send-jwt-token', AuthenticationController.facebookSendJWTtoken);
+
+  //= ========================
+  // Twitter Routes
+  //= ========================
+
+  apiRoutes.get('/auth/twitter', passport.authenticate('twitter'));
+
+  apiRoutes.get('/auth/twitter/callback',
+    passport.authenticate('twitter', { session: false, failureRedirect: "/" }),
+    function(req, res) {
+      res.redirect("http://localhost:5000/login-social/?twitter_token=" + req.user.jwtLoginAccessToken);
+  });
+
+
+  apiRoutes.get('/test-stripe-payment', function(req, res) {
+      var stripe = require("stripe")("sk_test_08cuSozBbGN2QPnpieyjxomZ");
+      res.redirect("");
+  });
+
+  apiRoutes.post('/auth/twitter-send-jwt-token', AuthenticationController.twitterSendJWTtoken);
 
   // Registration route
   authRoutes.post('/register', AuthenticationController.register);
@@ -64,6 +109,26 @@ module.exports = function (app) {
   });
 
   //= ========================
+  // Experts Routes
+  //= ========================
+  apiRoutes.get('/getExpertsCategoryList', ExpertsController.getExpertsCategoryList);
+  apiRoutes.get('/getExpertsListing/:category', ExpertsController.getExpertsListing);
+  apiRoutes.get('/getExpertDetail/:slug', ExpertsController.getExpertDetail);
+
+  apiRoutes.post('/sendEmailMessageToExpert', ExpertsController.sendEmailMessageToExpert);
+  apiRoutes.post('/sendTextMessageToExpert', ExpertsController.sendTextMessageToExpert);
+  apiRoutes.post('/createExpert/', ExpertsController.createExpert);
+
+  //= ========================
+  // Session Routes
+  //= ========================
+  //to be created by expert
+  apiRoutes.post('/createVideoSession/', VideoSessionController.createVideoSession);
+  //to be joined by user
+  apiRoutes.post('/joinVideoSession/', VideoSessionController.joinVideoSession);
+  apiRoutes.post('/createAudioSession/', VideoSessionController.createAudioSession);
+
+  //= ========================
   // Chat Routes
   //= ========================
 
@@ -81,6 +146,34 @@ module.exports = function (app) {
 
   // Start new conversation
   chatRoutes.post('/new/:recipient', requireAuth, ChatController.newConversation);
+
+  //= ========================
+  // Expert-Session Chat Routes
+  //= ========================
+
+  // Set chat routes as a subgroup/middleware to apiRoutes
+  apiRoutes.use('/expertchat', expertChatRoutes);
+
+  // View messages to and from authenticated user
+  //expertChatRoutes.get('/', requireAuth, ExpertChatController.getConversations);
+
+  // Retrieve single conversation
+  expertChatRoutes.get('/fetchSessionChat/:sessionOwnerUsername', requireAuth, ExpertChatController.fetchSessionChat);
+
+  // Send reply in conversation
+  expertChatRoutes.post('/expertsessionchat', requireAuth, ExpertChatController.expertsessionchat);
+
+  // Start new conversation
+  //expertChatRoutes.post('/new/:recipient', requireAuth, ExpertChatController.newConversation);
+
+  //= ========================
+  // Video Session Stripe Payment Routes
+  //= ========================
+  apiRoutes.use('/videosession',videoSessionStripeRoutes);
+
+  videoSessionStripeRoutes.post('/recharge-video-session', VideoSessionStripeController.rechargeVideoSession);
+
+  videoSessionStripeRoutes.post('/check-before-session-start', VideoSessionStripeController.checkBeforeSessionStart);
 
   //= ========================
   // Payment Routes

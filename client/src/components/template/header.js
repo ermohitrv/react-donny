@@ -1,6 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router';
+import { Link, IndexLink } from 'react-router';
+import cookie from 'react-cookie';
+
+const currentUser = cookie.load('user');
+//console.log('currentUser: '+JSON.stringify(currentUser));
 
 class HeaderTemplate extends Component {
   renderLinks() {
@@ -10,9 +14,9 @@ class HeaderTemplate extends Component {
           <Link to="/">Home</Link>
         </li>,
         <li key={`${2}header`}>
-          <Link to="dashboard">Dashboard</Link>
+          <Link to="dashboard">Dashboard( {currentUser.role} - {currentUser.slug} )</Link>
         </li>,
-        <li key={`${3}header`}>
+        <li key={`${4}header`}>
           <Link to="logout">Logout</Link>
         </li>,
       ];
@@ -26,7 +30,7 @@ class HeaderTemplate extends Component {
           <Link to="login">Login</Link>
         </li>,
         <li key={3}>
-          <Link to="register">Register</Link>
+          <Link to="register">Signup</Link>
         </li>,
       ];
     }
@@ -43,7 +47,10 @@ class HeaderTemplate extends Component {
                 <span className="icon-bar" />
                 <span className="icon-bar" />
               </button>
-              <Link className="navbar-brand" to="/">{this.props.logo}</Link>
+
+             <div className="logo-tag"> <IndexLink className="navbar-brand" to="/">Donny's list</IndexLink>
+              <span className="navbar-caption">connecting people to learn online.</span>
+</div>
             </div>
 
             <div className="collapse navbar-collapse" id="nav-collapse">

@@ -24,6 +24,21 @@ export function loginUser({ email, password }) {
   };
 }
 
+export function facebookLoginUser() {
+  return function (dispatch) {
+    axios.get(`${API_URL}/auth/facebook`)
+    .then((response) => {
+      cookie.save('token', response.data.token, { path: '/' });
+      cookie.save('user', response.data.user, { path: '/' });
+      dispatch({ type: AUTH_USER });
+      window.location.href = `${CLIENT_ROOT_URL}/dashboard`;
+    })
+    .catch((error) => {
+      errorHandler(dispatch, error.response, AUTH_ERROR);
+    });
+  };
+}
+
 export function registerUser({ email, firstName, lastName, password }) {
   return function (dispatch) {
     axios.post(`${API_URL}/auth/register`, { email, firstName, lastName, password })
