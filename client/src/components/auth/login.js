@@ -17,14 +17,16 @@ var callback = function () {
 
 class Login extends Component {
   handleFormSubmit(formProps) {
-    this.props.loginUser(formProps).then(
-      (response)=>{
-        console.log('response: '+JSON.stringify(response));
-      },
-      (err) => err.response.json().then(({errors})=> {
-        console.log('err: '+JSON.stringify(err));
-      })
-    )
+    try{
+      this.props.loginUser(formProps).then(
+        (response)=>{
+          console.log('response: '+JSON.stringify(response));
+        },
+        (err) => err.response.json().then(({errors})=> {
+          console.log('err: '+JSON.stringify(err));
+        })
+      )
+    }catch(e){}
   }
 
   // specifying verify callback function

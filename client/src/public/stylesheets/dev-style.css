@@ -177,7 +177,7 @@ input#hiddenRecaptcha{ visibility: hidden; height: 0; width: 0}
 }
 .g-recaptcha-wrapper label{display: block;}
 
-/********** Audio calling CSS : START ********/ 
+/********** Audio calling CSS : START ********/
 
 .expert-audio-call-interface-wrapper {
     position: fixed;
@@ -186,6 +186,7 @@ input#hiddenRecaptcha{ visibility: hidden; height: 0; width: 0}
     width: 400px;
     height: 300px;
     display: none;
+    z-index: 9;
 }
 
 /********** Audio calling CSS : END ********/
