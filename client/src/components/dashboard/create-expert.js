@@ -12,31 +12,31 @@ const form = reduxForm({
 });
 const renderField = field => (
   <div>
-    <input type="text" required className="form-control" {...field.input} />
+    <input type="text" className="form-control" {...field.input} />
     {field.touched && field.error && <div className="error">{field.error}</div>}
   </div>
 );
 const renderEmailField = field => (
   <div>
-    <input type="email" required className="form-control" {...field.input} />
+    <input type="email"  className="form-control" {...field.input} />
     {field.touched && field.error && <div className="error">{field.error}</div>}
   </div>
 );
 const renderTextarea = field => (
   <div>
-    <textarea required rows="3" className="form-control" {...field.input} ></textarea>
+    <textarea rows="3" className="form-control" {...field.input} ></textarea>
     {field.touched && field.error && <div className="error">{field.error}</div>}
   </div>
 );
 const renderBioField = field => (
   <div>
-    <input type="email" required placeholder="Your email here" className="form-control" {...field.input} />
+    <input type="email"  placeholder="Your email here" className="form-control" {...field.input} />
     {field.touched && field.error && <div className="error">{field.error}</div>}
   </div>
 );
 const renderFieldyearsexpertise = field => (
   <div>
-    <select required  name="yearsexpertise" className="form-control" {...field.input} >
+    <select name="yearsexpertise" className="form-control" {...field.input} >
       <option value="">Select</option>
       <option value="1">1</option>
       <option value="2">2</option>
@@ -54,7 +54,7 @@ const renderFieldyearsexpertise = field => (
 );
 const renderFieldexpertCategories = field => (
   <div>
-    <select required  name="expertCategories" className="form-control" {...field.input} >
+    <select name="expertCategories" className="form-control" {...field.input} >
       <option value="">Select</option>
       <option value="accounting">Accounting</option>
       <option value="accounting-finance">Accounting-finance</option>
@@ -71,6 +71,64 @@ class CreateExpert extends Component {
     super(props);
     this.state = {responseMsg:""};
     this.props.protectedTest();
+  }
+  componentDidMount(){
+
+    $(document).ready(function(){
+      jQuery("#create_expert").validate({
+        rules: {
+           firstName: {
+               required: true
+           },
+           lastName: {
+               required: true
+           },
+           email: {
+               required: true,
+               email:true
+           },
+           password: {
+               required: true
+           },
+           userBio: {
+               required: true
+           },
+           expertRates: {
+               required: true
+           },
+           expertCategories: {
+               required: true
+           },
+           expertContact: {
+               required: true
+           },
+           expertRating: {
+               required: true
+           },
+           expertFocusExpertise: {
+               required: true
+           },
+           yearsexpertise: {
+               required: true
+           }
+         },
+         messages: {
+           firstName:{
+             required: "Please enter this field"
+           },
+           lastName:{
+             required: "Please enter this field"
+           },
+           email:{
+             required: "Please enter this field"
+           },
+           userBio: {
+             required: "Please enter this field"
+           },
+         }
+      });
+    });
+
   }
 
   clearInput() {
@@ -163,7 +221,7 @@ class CreateExpert extends Component {
                     <div className="title">Create Expert</div>
                   </div>
                   {/* form begin here */ }
-                  <form onSubmit={handleSubmit(this.handleFormSubmit.bind(this))}>
+                  <form id="create_expert" onSubmit={handleSubmit(this.handleFormSubmit.bind(this))}>
                     <div dangerouslySetInnerHTML={{__html: this.state.responseMsg}} />
                     <div className="row">
                       <div className="col-md-6 form-group">

@@ -3,13 +3,11 @@ import { Link, IndexLink } from 'react-router';
 import { connect } from 'react-redux';
 import { API_URL, CLIENT_ROOT_URL, errorHandler } from '../../actions/index';
 import { Field, reduxForm } from 'redux-form';
-import { sendEmail, sendTextMessage, checkBeforeSessionStart, createAudioSession } from '../../actions/expert';
+import { sendEmail, sendTextMessage, checkBeforeSessionStart } from '../../actions/expert';
 import axios from 'axios';
 import ExpertReviews from './ExpertReviews';
 import cookie from 'react-cookie';
 import LoginModal from './login-modal';
-import * as actions from '../../actions/messaging';
-const socket = actions.socket;
 import NotificationModal from './notification-modal';
 import { Modal, Button } from 'react-bootstrap';
 
@@ -47,13 +45,7 @@ class ViewExpert extends Component {
       sessionBtnText: "",
       loading: false,
       error: null,
-      sessionId: '',
-      apiKey: '',
-      apiSecret: '',
-      apiToken: '',
-      expertUsername: this.props.params.slug,
-      expertAudioCallSokcetname: 'expert-audio-session-'+this.props.params.slug,
-      currentUser: cookie.load('user'),
+
       showModal: false,
       modalMessageNotification : "Alas, You have no donny's list wallet money in your account. Please recharge your account to start session.",
       modalMessageNotAuthorized : "Dear Expert, You are not authorized to publish your session on someone's channel. Please publish on your channel."
@@ -124,66 +116,36 @@ class ViewExpert extends Component {
 
   callNowButtonClick(e){
     e.preventDefault();
+    var userEmail, expertEmail = "";
 
-    const expertEmail = this.state.expertEmail;
-    const currentUser = cookie.load('user');
-    const userEmail = currentUser.email;
+    axios.post(`${API_URL}/createAudioSession`, { expertEmail, userEmail })
+		  .then(res => {
+        this.setState({sessionId : res.data.session.sessionId });
+        this.setState({apiKey : res.data.session.ot.apiKey });
+        this.setState({apiSecret : res.data.session.ot.apiSecret });
+		    this.setState({
+		      expert,
+		      loading: false,
+		      error: null
+		    });
+		  })
+		  .catch(err => {
+		    // Something went wrong. Save the error in state and re-render.
+		    this.setState({
+		      loading: false,
+		      error: err
+		    });
+  	});
 
-    console.log('case 1 expertEmail: '+expertEmail + ' userEmail: '+userEmail);
+    // Initialize an OpenTok Session object
+    var session = OT.initSession(this.state.sessionId);
 
-    this.props.createAudioSession({expertEmail, userEmail}).then(
-    	(response)=>{
-            console.log('**** createAudioSession this.state.sessionId ****'+ JSON.stringify(response) );
-            this.setState({sessionId  : response.sessionId });
-            this.setState({apiToken   : response.token });
-            var session = OT.initSession('45801242', this.state.sessionId);
+    // Initialize a Publisher, and place it into the element with id="publisher"
+    var publisher = OT.initPublisher(this.state.apiKey, 'publisherAudio',{width:'50%', height:300});
+    publisher.publishVideo(false);
 
-            const expertAudioCallSokcetname = this.state.expertAudioCallSokcetname;
-            const audioCallFrom = this.state.currentUser.firstName + ' ' + this.state.currentUser.lastName;
-
-            session.on('streamCreated', function(event){
-                console.log('streamCreated');
-            });
-
-            session.on('connectionCreated', function(event){
-                console.log('connectionCreated');
-            });
-
-            session.on('connectionDestroyed', function(event){
-                console.log('connectionDestroyed');
-            });
-
-            session.on('streamDestroyed', function(event){
-                console.log('streamDestroyed');
-            });
-
-            session.connect(this.state.apiToken, function(error){
-                if(error){
-                    console.log('session connection error');
-                } else {
-                    //var publisher = OT.initPublisher('45801242', 'publisher',{width:'100%', height:'603px'});
-                    //session.publish(publisher);
-                    var publisher = OT.initPublisher('publisherAudio',{width:300, height:200});
-                    session.publish(publisher);
-
-                    var data = {
-                        expertAudioCallSokcetname: expertAudioCallSokcetname,
-                        audioCallFrom: audioCallFrom
-                    };
-                    socket.emit('audio call to expert', data);
-                    //publisher.publishVideo(false);
-                }
-            });
-
-
-
-        },
-    	(err) => err.response.json().then(({errors})=> {
-            console.log('**** createAudioSession error ****'+ JSON.stringify(errors) );
-        })
-    )
+    this.setState({ showEndCallOptions: true });
   }
-
 
   componentDidMount() {
     var slug = this.props.params.slug;
@@ -307,7 +269,7 @@ class ViewExpert extends Component {
     const userEmail = currentUser.email;
     const userRole = currentUser.role;
     const userSlug = currentUser.slug;
-
+    //console.log('userEmail: 'userEmail+' - expertEmail:'+expertEmail+' - userRole:'+userRole+' - expertSlug:'+expertSlug+' - userSlug:'+userSlug);
     /*case 1: when logged in user is not expert and role is equal to User */
     if( userEmail !== expertEmail && userRole !== "Expert" ){
         this.props.checkBeforeSessionStart({'expertEmail' : expertEmail,'userEmail': userEmail}).then(
@@ -330,6 +292,7 @@ class ViewExpert extends Component {
     }else if( ( userEmail === expertEmail && userRole === "Expert") && (expertSlug === userSlug) ){
         /*case 2: when logged in user is expert and role is equal to Expert, then no need for payment process */
         window.location.href = `${CLIENT_ROOT_URL}/mysession/`+this.props.params.slug;
+
     }else{
         this.setState({showModal: true});
     }
@@ -352,7 +315,7 @@ class ViewExpert extends Component {
     const { handleSubmit } = this.props;
     return (
     <div id="view-experts" className="view-experts">
-      {/* modal to show notifications to unauthorized user */}
+
       <Modal className="modal-container"
         show={this.state.showModal}
         onHide={this.close}
@@ -366,7 +329,7 @@ class ViewExpert extends Component {
           <Button onClick={this.close}>Close</Button>
         </Modal.Footer>
       </Modal>
-      {/* modal to show notifications to unauthorized user */}
+
       <div className="container">
          <div className="row">
              <ol className="breadcrumb">
@@ -389,22 +352,22 @@ class ViewExpert extends Component {
                                 <i data-toggle="title" title={this.getOnlineStatusTitle(this.state.onlineStatus)} className={this.getOnlineStatus(this.state.onlineStatus)} aria-hidden="true"></i>
                              </div>
                              <ul className="Action_icon">
+                               {/*}
+                               <li><Link data-toggle="tooltip" title="" to={`/list/${this.props.params.category}`} className="accounting">{this.props.params.category}</Link></li>
+                               {*/}
                                <li>
                                  {currentUser ? <Link data-toggle="tooltip" title="Start Session Test" onClick={this.startSessionCheck.bind(this)} className="Start-Session"></Link> : <div><Link title="Start Session" to="javascript:void(0)" data-toggle="modal" data-target="#loginModal" className="Start-Session"></Link><LoginModal modalId="loginModal" modalMessage="Please login to start session"/></div> }
                                </li>
                                <li><Link title="Send E-Mail" data-toggle="modal" data-target="#myModalEmail" className="Send_E-Mail"> Send E-Mail</Link></li>
                                <li><Link title="Send Text Message" data-toggle="modal" data-target="#myModalTextMessage" className="Send-Text-Message"> Send Text Message</Link></li>
                                <li><Link data-toggle="tooltip" title="Download Resume" className="Download-Resume"> Download Resume</Link></li>
-                               <li>
-                                  { currentUser ? <Link title="Audio Call"  onClick={this.callNowButtonClick.bind(this)} className="Audio-Call">  Audio Call </Link> : <Link title="Audio Call" to="javascript:void(0)" data-toggle="modal" data-target="#myModalAudio" className="Audio-Call"> Audio Call</Link>}
-                               </li>
+                               <li><Link title="Audio Call" to="javascript:void(0)" data-toggle="modal" data-target="#myModalAudio" className="Audio-Call"> Audio Call</Link></li>
                              </ul>
                              <div>
                                <Link title="Start Session" to="javascript:void(0)" data-toggle="modal" className="notification-modal" data-target="#notificationModal"></Link>
-                               { currentUser ? <NotificationModal userEmail={currentUser.email} expertSlug={this.props.params.slug} modalId="notificationModal" modalMessage={this.state.modalMessageNotification}/> : "" }
+                               <NotificationModal userEmail={currentUser.email} expertSlug={this.props.params.slug} modalId="notificationModal" modalMessage={this.state.modalMessageNotification}/>
                              </div>
                           </div>
-	                       <div id="publisherAudio"></div>
                           <div className="col-md-9 col-sm-8">
                              <div className="profile-detail">
                                 <div className="name">
@@ -460,17 +423,12 @@ class ViewExpert extends Component {
               <div className="modal-content">
                 <div className="modal-header">
                     <button type="button" className="close" data-dismiss="modal">×</button>
-                    <h4 className="modal-title">Message</h4>
+                    <h4 className="modal-title">Audio Session</h4>
                 </div>
-                <div className="modal-body text-center">
-                  <div className="alert alert-danger">Please login to place audio call</div>
-                </div>
-                <div className="modal-footer text-center">
+                <div className="modal-footer">
                   <div className="bootstrap-dialog-footer">
                     <div className="bootstrap-dialog-footer-buttons text-center">
-                      <div className="form-group">
-                        <button type="button" className="btn btn-primary" data-dismiss="modal">Dismiss</button>
-                      </div>
+                        {currentUser ? <Link onClick={this.callNowButtonClick.bind(this)} to="javascript:void(0)" className="btn btn-default"><span> <i className="fa fa-handshake-o"></i> Audio Call </span></Link> : <div className="alert alert-danger">Please login to place Audio Call</div> }
                     </div>
                   </div>
                 </div>
@@ -580,7 +538,9 @@ class ViewExpert extends Component {
     );
   }
 
-  /*** Render the component. */
+  /**
+   * Render the component.
+   */
   render() {
     return (
       <div>
@@ -599,4 +559,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, { sendEmail, sendTextMessage, checkBeforeSessionStart, createAudioSession })(form(ViewExpert));
+export default connect(mapStateToProps, { sendEmail, sendTextMessage, checkBeforeSessionStart })(form(ViewExpert));

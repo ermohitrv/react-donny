@@ -38,8 +38,7 @@ class Login extends Component {
              email: { required: "Please enter this field" },
              password:{ required: "Please enter this field" },
              hiddenRecaptcha:{ required: "Please enter this field" }
-        },
-        submitHandler: function(form) { form.submit(); }
+        }
       });
     });
   }
@@ -47,15 +46,9 @@ class Login extends Component {
   handleFacebookClick() {
     window.open(`${API_URL}/auth/facebook`, 'sharer', 'toolbar=0,top=50,status=0,width=748,height=525');
   }
-  /*
-  handleTwitterClick() {
-    window.open('http://localhost:3000/api/auth/twitter', 'sharer', 'toolbar=0,status=0,width=748,height=525');
-  }
-  */
 
   render() {
     const { handleSubmit } = this.props;
-
     return (
         <div className="col-sm-6 col-sm-offset-3">
           <div className="page-title text-center"><h2>Login</h2></div>
@@ -69,9 +62,9 @@ class Login extends Component {
               <label>Password</label>
               <Field name="password" className="form-control" required component="input" type="password" />
             </div>
-            <div className="form-group text-center">
+            <div className="form-group text-center g-recaptcha-wrapper">
+              <input type="text" class="form-control g-recaptcha" id="hiddenRecaptcha" name="hiddenRecaptcha"/>
               <Recaptcha sitekey="6LeMERsUAAAAACSYqxDZEOOicHM8pG023iDHZiH5" render="explicit" onloadCallback={callback} verifyCallback={this.verifyCallback.bind(this)} />
-              <input type="text" class="form-control g-recaptcha" id="hiddenRecaptcha" name="hiddenRecaptcha"  />
             </div>
             <div className="form-group text-center">
               <button type="submit" className="btn btn-primary">Login</button>

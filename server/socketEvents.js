@@ -62,5 +62,18 @@ exports = module.exports = function (io) {
       console.log('server side : ***** ***** *****  expert user disconnected '+sessionOwnerUsername);
       io.sockets.in(sessionOwnerUsername).emit('expert user disconnected', sessionOwnerUsername);
     });
+
+    /*event fires when any user leave the session page*/
+    socket.on('audio call to expert', (data) => {
+      //console.log('server side : ***** ***** *****  audio call to expert '+expertUsername);
+      io.sockets.to(data.expertAudioCallSokcetname).emit('audio call to expert', data);
+    });
+
+    // create expert audio call session
+    socket.on('expert audio call session', (expertUsername) => {
+      socket.join(expertUsername);
+       console.log('expert audio call session : joined ' + expertUsername);
+    });
+
   });
 };

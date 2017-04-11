@@ -151,3 +151,41 @@ font-size: 14px !important; font-family: 'American Typewriter', serif; }
 }
 .error{color: red;font-weight: normal;}
 input#hiddenRecaptcha{ visibility: hidden; height: 0; width: 0}
+.navbar .dropdown {
+    float: right;
+    padding: 5px;
+}
+.navbar .dropdown a.dropdown-toggle{background-color: #666;color: #fff;}
+.navbar .dropdown-toggle{
+  background-color: #666;
+    color: #fff;
+    text-transform: lowercase;
+    margin: 0px 10px;
+    background: #666;
+    font-size: 14px;
+    padding: 5px 20px;
+    border-radius: 8px;
+    font-family: 'Open Sans', sans-serif;
+}
+
+.modal-header {
+    min-height: 16.43px;
+    padding: 15px;
+    border-bottom: 1px solid #e5e5e5;
+    background-color: #337ab7;
+    color:#fff;
+}
+.g-recaptcha-wrapper label{display: block;}
+
+/********** Audio calling CSS : START ********/
+
+.expert-audio-call-interface-wrapper {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    width: 400px;
+    height: 300px;
+    display: none;
+}
+
+/********** Audio calling CSS : END ********/

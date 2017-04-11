@@ -10,13 +10,15 @@ percentage amount to admin will be transferred at same time
 */
 exports.rechargeVideoSession = function (req, res, next) {
   var token = req.body.stripeToken.id; // Using Express
-  var expertEmail = req.body.expertEmail;
+  var userEmail = req.body.userEmail;
   var amount = req.body.amount;
-
-  console.log('** ** ** expertEmail: '+expertEmail);
+  var durationBought = 0;
   if (token) {
 
     var percentageAmount = (config.stripePaymentAdminPercentage / 100) * amount;
+    durationBought = amount;
+    amount = amount*100;    //cents
+    percentageAmount = percentageAmount*100;  //cents
 
     stripe.charges.create({
      amount: amount,
@@ -29,7 +31,25 @@ exports.rechargeVideoSession = function (req, res, next) {
       if(err){
         res.json(err);
       } else {
-        res.status(200).json(charge);
+
+        var videoObj = new Videosession();
+        videoObj.userEmail = userEmail;
+        videoObj.stripePaymentStatus = charge.status;
+        videoObj.stripePaymentAmount = (charge.status/100);
+        videoObj.stripePaymentId = charge.id;
+        videoObj.stripePaymentCreationTime = charge.created;
+        videoObj.stripePaymentCardLast4 = charge.source.last4;
+        videoObj.stripePaymentApplication = charge.application;
+        videoObj.stripePaymentApplicationFee = charge.application_fee;
+        videoObj.stripePaymentBalanceTransaction = charge.balance_transaction;
+        videoObj.sessionCompletionStatus = "UNCOMPLETED";
+        videoObj.save(function (err, saved) {
+            if (err) {
+                res.status(200).json({error:err,response:null});
+            } else {
+                res.status(200).json({error:null,response:saved});
+            }
+        });
       }
     });
   }else{
@@ -41,14 +61,9 @@ exports.rechargeVideoSession = function (req, res, next) {
 function to check whether user has made the payment before going to start session
 */
 exports.checkBeforeSessionStart = function (req, res, next) {
-  var expertEmail = req.body.expertEmail;
   var userEmail = req.body.userEmail;
-
-  console.log('** ** ** expertEmail: '+expertEmail);
-  console.log('** ** ** userEmail: '+userEmail);
-
-  if (expertEmail && userEmail) {
-    Videosession.findOne({'expertEmail': expertEmail, 'userEmail': userEmail, 'sessionCompletionStatus' : "UNCOMPLETED" },function(err, session){
+  if (userEmail) {
+    Videosession.findOne({'userEmail': userEmail, 'sessionCompletionStatus' : "UNCOMPLETED" },function(err, session){
       if(!err && ( session != null && session != undefined ) ){
         res.json({'session':session});
       }else{

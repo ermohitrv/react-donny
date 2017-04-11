@@ -169,9 +169,9 @@ class Register extends Component {
           </div>
         </div>
 
-        <div className="form-group text-center">
-          <Recaptcha  sitekey="6LeMERsUAAAAACSYqxDZEOOicHM8pG023iDHZiH5"  render="explicit" onloadCallback={callback} verifyCallback={this.verifyCallback.bind(this)} />
+        <div className="form-group text-center g-recaptcha-wrapper">
           <input type="text" class="form-control g-recaptcha" id="hiddenRecaptcha" name="hiddenRecaptcha"  />
+          <Recaptcha  sitekey="6LeMERsUAAAAACSYqxDZEOOicHM8pG023iDHZiH5"  render="explicit" onloadCallback={callback} verifyCallback={this.verifyCallback.bind(this)} />
         </div>
 
         <div className="form-group text-center">

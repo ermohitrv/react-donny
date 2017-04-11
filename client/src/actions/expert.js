@@ -77,8 +77,10 @@ export function createExpert({ firstName, lastName, email, password, userBio, ex
 // check Before Session Start actions
 //= ===============================
 export function checkBeforeSessionStart({ expertEmail, userEmail }) {
+  console.log('expertEmail: '+expertEmail);
+  console.log('userEmail: '+userEmail);
   return function (dispatch) {
-    return axios.post(`${API_URL}/videosession/check-before-session-start`, { expertEmail, userEmail })
+    return axios.post(`${API_URL}/videosession/check-before-session-start`, { userEmail })
     .then((response) => {
       return response.data;
     })
@@ -90,19 +92,41 @@ export function checkBeforeSessionStart({ expertEmail, userEmail }) {
 }
 
 //= ===============================
+// check Before Session Start actions
+//= ===============================
+export function createAudioSession({ expertEmail, userEmail }) {
+  return function (dispatch) {
+      console.log('expertEmail: '+expertEmail + ' userEmail: '+userEmail);
+      if(expertEmail !== undefined && userEmail !== undefined){
+        return axios.post(`${API_URL}/createAudioSession`, { expertEmail, userEmail })
+            .then(response => {
+                console.log(response.data);
+                return response.data;
+            })
+            .catch(err => {
+                errorHandler(dispatch, error.response, AUTH_ERROR);
+            });
+    }
+  };
+}
+
+//= ===============================
 // recharge user session before starting session actions
 //= ===============================
-export function rechargeVideoSession({stripeToken, expertEmail, amount}) {
-  console.log('..... stripeToken ......: '+stripeToken);
+export function rechargeVideoSession({stripeToken, expertSlug, userEmail, amount}) {
   return function (dispatch) {
-    return axios.post(`${API_URL}/videosession/recharge-video-session`, {stripeToken, expertEmail, amount})
+    return axios.post(`${API_URL}/videosession/recharge-video-session`, {stripeToken, userEmail, amount})
 		  .then(response => {
-        console.log('response: '+response);
-        alert(`We are in business, ${response.status}`);
+        console.log('response: '+JSON.stringify(response));
+        if(response.data.response.stripePaymentStatus === "succeeded"){
+          console.log('in if '+expertSlug);
+          window.location.href = `${CLIENT_ROOT_URL}/mysession/`+expertSlug;
+        }else{
+          console.log('in else '+expertSlug);
+        }
 		  })
 		  .catch(err => {
         console.log('err: '+err);
-        alert(`Error Occured, ${err.failure_message}`+ `${err.failure_code}`);
   	});
   };
 }

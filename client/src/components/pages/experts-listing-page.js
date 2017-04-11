@@ -2,28 +2,11 @@ import React, { Component } from 'react';
 import { Link, IndexLink } from 'react-router';
 import { connect } from 'react-redux';
 import { API_URL, CLIENT_ROOT_URL, errorHandler } from '../../actions/index';
-import { Field, reduxForm } from 'redux-form';
+import { Field } from 'redux-form';
 import { sendEmail, isLoggedIn } from '../../actions/expert';
 import axios from 'axios';
 import $ from 'jquery'
 import cookie from 'react-cookie';
-
-const form = reduxForm({
-  form: 'register'
-});
-
-const renderField = field => (
-  <div>
-    <input required placeholder="Your email here" className="form-control" {...field.input} />
-    {field.touched && field.error && <div className="error">{field.error}</div>}
-  </div>
-);
-const renderTextarea = field => (
-  <div>
-    <textarea required rows="3" placeholder="Your message here" className="form-control" {...field.input} ></textarea>
-    {field.touched && field.error && <div className="error">{field.error}</div>}
-  </div>
-);
 
 class ExpertsListingPage extends Component {
   /**
@@ -37,11 +20,8 @@ class ExpertsListingPage extends Component {
       responseMsg: "",
       isUserLoggedIn: "",
       posts: [],
-      //loading: false,
       error: null
     };
-
-
 
     $(document).ready(function(){
       jQuery(document).on('click','.show_message_form',function(){
@@ -73,14 +53,12 @@ class ExpertsListingPage extends Component {
         this.setState({
           posts,
           category,
-          //loading: false,
           error: null
         });
       })
       .catch(err => {
         // Something went wrong. Save the error in state and re-render.
         this.setState({
-          //: false,
           category:'',
           error: err
         });
@@ -104,23 +82,6 @@ class ExpertsListingPage extends Component {
     return Object.assign(
       {width:size}
     );
-  }
-
-  renderSessionHyperlink(slug){
-    const currentUser = cookie.load('user');
-    console.log('currentUser: '+JSON.stringify(currentUser));
-    if (currentUser === []){
-    //if (currentUser != undefined) {
-      console.log('if');
-      return (
-        <Link to={`/expert/${this.props.params.category}/${slug}`} className="btn-strt-session btn btn-primary pull-right">Start Session</Link>
-      );
-    }else{
-      console.log('else');
-      return (
-        <button type="button" data-toggle="modal" data-target="#myModal" className="btn-strt-session btn btn-primary pull-right">Start Session</button>
-      );
-    }
   }
 
   getOnlineStatus(onlineStatus){
@@ -187,7 +148,8 @@ class ExpertsListingPage extends Component {
                    <div className="tab-content">
                       <div role="tabpanel" className="tab-pane active" id="home">
                          <div className="expertise-all-detail-wrap">
-                             {this.state.posts.map(post =>
+                            
+                            {this.state.posts.map(post =>
                             <div className="expertise-detail-only">
                                <div className="row">
                                   <div className="col-sm-8">
@@ -217,7 +179,6 @@ class ExpertsListingPage extends Component {
                                      </div>
                                      <div className="btn-expertise">
                                        <Link to={`/expert/${this.props.params.category}/${post.slug}`} className="btn-strt-session btn btn-primary pull-right">Start Session</Link>
-                                       {/*}{this.renderSessionHyperlink(post.slug)}{*/}
                                      </div>
                                   </div>
                                </div>
@@ -244,52 +205,6 @@ class ExpertsListingPage extends Component {
                 </div>
              </div>
           </div>
-          <div id="myModal" className="modal fade continueshoppingmodal" role="dialog">
-            <div className="modal-dialog">
-              <div className="modal-content">
-                  <div className="modal-header">
-                      <button type="button" className="close" data-dismiss="modal">×</button>
-                      <h4 className="modal-title">Start Session</h4>
-                  </div>
-                  <div className="modal-body">
-                    <p className="text-center">Please <Link to="/login">login</Link> to initiate the session!</p>
-                    <p className="text-center"> OR </p>
-                    <p className="text-center"> Shoot email message to expert </p>
-                      <div>
-                        <table className="table table-hover">
-                          <tbody>
-                              <tr>
-                                  { /* form begin here */ }
-                                  <form onSubmit={handleSubmit(this.handleFormSubmit.bind(this))}>
-                                    {this.state.responseMsg}
-                                    <div className="row form-group">
-                                      <div className="col-md-12">
-                                        <label>Email</label>
-                                        <Field name="email" component={renderField} type="text" />
-                                      </div>
-                                    </div>
-                                    <div className="row form-group">
-                                      <div className="col-md-12">
-                                        <label>Message</label>
-                                        <Field name="message" rows="3" component={renderTextarea} type="text" />
-                                      </div>
-                                    </div>
-                                    <div className="form-group">
-                                      <button type="submit" className="btn btn-primary">Send Email</button>
-                                      &nbsp;
-                                      <button type="button" className="btn btn-default" data-dismiss="modal">Close</button>
-                                    </div>
-                                  </form>
-                                  { /* form end here */ }
-                              </tr>
-                            </tbody>
-                          </table>
-                      </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
         </div>
     );
   }
@@ -303,7 +218,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, { sendEmail, isLoggedIn })(form(ExpertsListingPage));
-
-
-//export default ExpertsListingPage;
+export default connect(mapStateToProps, { sendEmail, isLoggedIn })(ExpertsListingPage);

@@ -2,38 +2,30 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import StripeCheckout from 'react-stripe-checkout';
 import { rechargeVideoSession } from '../../actions/expert';
+import { CLIENT_ROOT_URL, errorHandler } from '../../actions/index';
 
-class LoginModal extends Component {
+class NotificationModal extends Component {
+  constructor(props, context) {
+    super(props, context);
+    this.state = { responseTextMsg : "" };
+    const userEmail = this.props.userEmail;
+  }
+
   onToken(stripeToken){
-
     try{
-
       const amount = 30;  //default initial time is 30 minutes
-      const expertEmail = this.state.expertEmail;
-      console.log('state expertEmail: '+expertEmail);
+      const userEmail = this.props.userEmail;
+      const expertSlug = this.props.expertSlug;
 
-      this.props.rechargeVideoSession({stripeToken, expertEmail, amount}).then(
+      this.props.rechargeVideoSession({stripeToken, expertSlug, userEmail, amount}).then(
       	(response)=>{
-          this.setState({responseTextMsg : "<div class='alert alert-success text-center'>"+response.message+"</div>"});
-          setTimeout(function(){
-            $('.alert').text("");
-            $('.alert').removeClass("alert alert-success text-center");
-            $("input[name='text_email").val("");
-            $("textarea[name='text_message").val("");
-          },2500);
+          console.log('response: '+JSON.stringify(response));
       	},
       	(err) => err.response.json().then(({errors})=> {
-       		this.setState({responseTextMsg : "<div class='alert alert-danger text-center'>"+errors+"</div>"});
-          setTimeout(function(){
-            $('.alert').text("");
-            $('.alert').removeClass("alert alert-success text-center");
-            $("input[name='text_email").val("");
-            $("textarea[name='text_message").val("");
-          },2500);
+          console.log('err: '+JSON.stringify(err));
        	})
       )
     }catch(e){}
-
   }
 
   render() {
@@ -41,13 +33,20 @@ class LoginModal extends Component {
       <div id={this.props.modalId} className="modal fade continueshoppingmodal" role="dialog">
         <div className="modal-dialog">
           <div className="modal-content">
-            <div className="modal-header">
+            <div className="modal-header text-center">
                 <button type="button" className="close" data-dismiss="modal">×</button>
                 <h4 className="modal-title">Message</h4>
             </div>
             <div className="modal-body text-center">
-                <div className="alert alert-danger">{this.props.modalMessage}</div>
-                <StripeCheckout token={this.onToken.bind(this)} stripeKey="pk_test_s744wYvqQUrpqsXGLnUBUFRw" panelLabel="Pay Now!" name="Please recharge your account to initiate the session"> <a href="javascript:void()" className="btn btn-primary">Recharge Now!</a></StripeCheckout>
+                {this.props.modalMessage}
+                <div dangerouslySetInnerHTML={{__html: this.state.responseTextMsg}}/>
+            </div>
+            <div className="modal-footer">
+              <div className="bootstrap-dialog-footer">
+                <div className="bootstrap-dialog-footer-buttons text-center">
+                  <StripeCheckout token={this.onToken.bind(this)} stripeKey="pk_test_s744wYvqQUrpqsXGLnUBUFRw" panelLabel="Pay Now!" name="Donny's List Wallet Money"> <a href="javascript:void()" className="btn btn-primary">Add Money to Wallet</a></StripeCheckout>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -63,4 +62,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, { rechargeVideoSession })(LoginModal);
+export default connect(mapStateToProps, { rechargeVideoSession })(NotificationModal);

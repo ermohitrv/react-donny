@@ -3,6 +3,7 @@ const mongoose = require('mongoose'),
 
 const VideosessionSchema = new Schema({
     expertEmail               : {type: String, default: ''},
+    expertSlug                : {type: String, default: ''},
     userEmail                 : {type: String, default: ''},
     sessionId                 : {type: String, default: ''},
     sessionExpertToken        : {type: String, default: ''},

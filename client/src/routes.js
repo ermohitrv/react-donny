@@ -41,7 +41,7 @@ import AdminDashboard from './components/admin/dashboard';
 // Import higher order components
 import RequireAuth from './components/auth/require_auth';
 
-import StripeTest from './components/pages/stripe-test';
+import MysessionList from './components/dashboard/mysession-list';
 
 export default (
   <Route path="/" component={App}>
@@ -67,8 +67,7 @@ export default (
     <Route path="tokbox/:slug" component={TokboxPage} />
     <Route path="tokbox/join/:slug" component={TokboxPage} />
 
-
-    <Route path="stripe-test" component={StripeTest} />
+    <Route path="mysession-list" component={MysessionList} />
 
     <Route path="admin" component={RequireAuth(AdminDashboard)} />
 
