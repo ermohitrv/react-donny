@@ -2,6 +2,7 @@ const AuthenticationController = require('./controllers/authentication');
 const UserController = require('./controllers/user');
 const ExpertsController = require('./controllers/experts');
 const VideoSessionController = require('./controllers/videosession');
+const AudioSessionController = require('./controllers/audiosession');
 const ChatController = require('./controllers/chat');
 const ExpertChatController = require('./controllers/expertchat');
 const CommunicationController = require('./controllers/communication');
@@ -126,7 +127,10 @@ module.exports = function (app) {
   apiRoutes.post('/createVideoSession/', VideoSessionController.createVideoSession);
   //to be joined by user
   apiRoutes.post('/joinVideoSession/', VideoSessionController.joinVideoSession);
-  apiRoutes.post('/createAudioSession/', VideoSessionController.createAudioSession);
+  
+  // Audion call session route
+  apiRoutes.post('/createAudioSession/', AudioSessionController.createAudioSession);
+  apiRoutes.get('/requestForToken/:email', AudioSessionController.requestForToken);
 
   //= ========================
   // Chat Routes

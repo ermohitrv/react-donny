@@ -77,7 +77,7 @@ class HeaderTemplate extends Component {
         </nav>
 
         {/* modal for expert to notify audio call  */}
-          <ExpertAudioCall/>
+          <ExpertAudioCall email={ currentUser.email } />
          {/* modal for expert to notify audio call  */}
       </div>
     );

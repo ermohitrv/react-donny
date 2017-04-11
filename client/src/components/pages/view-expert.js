@@ -56,12 +56,25 @@ class ViewExpert extends Component {
       currentUser: cookie.load('user'),
       showModal: false,
       modalMessageNotification : "Alas, You have no donny's list wallet money in your account. Please recharge your account to start session.",
-      modalMessageNotAuthorized : "Dear Expert, You are not authorized to publish your session on someone's channel. Please publish on your channel."
+      modalMessageNotAuthorized : "Dear Expert, You are not authorized to publish your session on someone's channel. Please publish on your channel.",
+      startAudioRecording: false
     };
 
     this.open = this.open.bind(this);
     this.close = this.close.bind(this);
   }
+  
+  startAudioRecording(){
+      this.setState({
+          startAudioRecording: true
+      });
+  };
+  
+  stopAudioRecording(){
+      this.setState({
+         startAudioRecording: false 
+      });
+  };
 
   open() { this.setState({showModal: true}); }
   close() { this.setState({showModal: false}); }
@@ -124,6 +137,17 @@ class ViewExpert extends Component {
 
   callNowButtonClick(e){
     e.preventDefault();
+    
+    const expertAudioCallSokcetname = this.state.expertAudioCallSokcetname;
+    const audioCallFrom = this.state.currentUser.firstName + ' ' + this.state.currentUser.lastName;
+//    
+//    var data = {
+//        expertAudioCallSokcetname: expertAudioCallSokcetname,
+//        audioCallFrom: audioCallFrom
+//    };
+//    socket.emit('audio call to expert', data);
+//    
+//    return;
 
     const expertEmail = this.state.expertEmail;
     const currentUser = cookie.load('user');
@@ -138,11 +162,12 @@ class ViewExpert extends Component {
             this.setState({apiToken   : response.token });
             var session = OT.initSession('45801242', this.state.sessionId);
 
-            const expertAudioCallSokcetname = this.state.expertAudioCallSokcetname;
-            const audioCallFrom = this.state.currentUser.firstName + ' ' + this.state.currentUser.lastName;
+            
 
             session.on('streamCreated', function(event){
                 console.log('streamCreated');
+                var options = {width:200, height:100};
+                var subscriber = session.subscribe(event.stream, 'expertSubscriberAudio' , options);
             });
 
             session.on('connectionCreated', function(event){
@@ -163,7 +188,8 @@ class ViewExpert extends Component {
                 } else {
                     //var publisher = OT.initPublisher('45801242', 'publisher',{width:'100%', height:'603px'});
                     //session.publish(publisher);
-                    var publisher = OT.initPublisher('publisherAudio',{width:300, height:200});
+                    var pubOptions = {videoSource: null, width:200, height:100};
+                    var publisher = OT.initPublisher('publisherAudio', pubOptions);
                     session.publish(publisher);
 
                     var data = {
@@ -171,7 +197,7 @@ class ViewExpert extends Component {
                         audioCallFrom: audioCallFrom
                     };
                     socket.emit('audio call to expert', data);
-                    //publisher.publishVideo(false);
+                    publisher.publishVideo(false);
                 }
             });
 
@@ -398,6 +424,8 @@ class ViewExpert extends Component {
                                <li>
                                   { currentUser ? <Link title="Audio Call"  onClick={this.callNowButtonClick.bind(this)} className="Audio-Call">  Audio Call </Link> : <Link title="Audio Call" to="javascript:void(0)" data-toggle="modal" data-target="#myModalAudio" className="Audio-Call"> Audio Call</Link>}
                                </li>
+                       
+                               {/* <li>{ !this.state.startAudioRecording ? <Link title="Start Audio Recording" onClick={ this.startAudioRecording.bind(this) } className="start-audio-recording btn btn-success"> Start Recording </Link> :  <Link title="Stop Audio Recording" onClick={ this.stopAudioRecording.bind(this) } className="stop-audio-recording btn btn-danger"> Stop Recording </Link> }       </li> */}
                              </ul>
                              <div>
                                <Link title="Start Session" to="javascript:void(0)" data-toggle="modal" className="notification-modal" data-target="#notificationModal"></Link>
@@ -405,6 +433,7 @@ class ViewExpert extends Component {
                              </div>
                           </div>
 	                       <div id="publisherAudio"></div>
+                               <div id="expertSubscriberAudio"></div>
                           <div className="col-md-9 col-sm-8">
                              <div className="profile-detail">
                                 <div className="name">

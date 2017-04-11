@@ -149,3 +149,17 @@ export function isLoggedIn() {
     });
   };
 }
+
+export function audioCallTokenRequest({ email }) {
+  return function (dispatch) {
+    return axios.get(`${API_URL}/requestForToken/${email}`)
+    .then((response) => {
+      return response.data;
+        //return {email};
+    })
+    .catch((error) => {
+      console.log('error: '+error);
+      errorHandler(dispatch, error.response, AUTH_ERROR);
+    });
+  };
+}

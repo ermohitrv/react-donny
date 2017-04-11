@@ -17,7 +17,11 @@ class ExpertAudioCall extends Component {
     super(props);
     this.state = {
       showModal: false,
-      audioCallFrom: ''
+      audioCallFrom: '',
+      email: this.props.email,
+      sessionId: '',
+      apiToken: ''
+      
     };
     var self = this;
     this.open = this.open.bind(this);
@@ -39,6 +43,9 @@ class ExpertAudioCall extends Component {
         });
         self.open();
     });
+    
+    
+    //alert(this.props.expertEmail);
   }
   open() { this.setState({showModal: true}); }
 
@@ -46,10 +53,53 @@ class ExpertAudioCall extends Component {
 
   connectCall(){
     this.setState({showModal: false});
+    
+    const email = this.state.email;
 
-    this.props.audioCallTokenRequest().then(
+    this.props.audioCallTokenRequest({ email  }).then(
       (response)=>{
-        alert('success');
+        //alert('success '+ JSON.stringify(response) );
+
+        //console.log('**** createAudioSession this.state.sessionId ****'+ JSON.stringify(response) );
+            this.setState({sessionId  : response.sessionId });
+            this.setState({apiToken   : response.token });
+            var session = OT.initSession('45801242', this.state.sessionId);
+
+            //const expertAudioCallSokcetname = this.state.expertAudioCallSokcetname;
+            //const audioCallFrom = this.state.currentUser.firstName + ' ' + this.state.currentUser.lastName;
+
+            session.on('streamCreated', function(event){
+                console.log('streamCreated');
+                console.log('streamCreated');
+                var options = {width:200, height:100};
+                var subscriber = session.subscribe(event.stream, 'userSubscriberAudio' , options);
+            });
+
+            session.on('connectionCreated', function(event){
+                console.log('connectionCreated');
+            });
+
+            session.on('connectionDestroyed', function(event){
+                console.log('connectionDestroyed');
+            });
+
+            session.on('streamDestroyed', function(event){
+                console.log('streamDestroyed');
+            });
+
+            session.connect(this.state.apiToken, function(error){
+                if(error){
+                    console.log('session connection error');
+                } else {
+                    //var publisher = OT.initPublisher('45801242', 'publisher',{width:'100%', height:'603px'});
+                    //session.publish(publisher);
+                    var pubOptions = {videoSource: null, width:200, height:100};
+                    var publisher = OT.initPublisher('expertPublisherAudio', pubOptions);
+                    session.publish(publisher);
+
+                    //publisher.publishVideo(false);
+                }
+            });
       },
       (err) => err.response.json().then(({errors})=> {
         alert('error');
@@ -66,7 +116,7 @@ class ExpertAudioCall extends Component {
           {/* modal for expert to notify audio call  */}
           <Modal className="modal-container"
             show={this.state.showModal}
-            onHide={this.close}
+            onHide={this.disconnectCall}
             animation={true}
             bsSize="small">
             <Modal.Header closeButton>
@@ -84,6 +134,8 @@ class ExpertAudioCall extends Component {
             <div id="expert-audio-call-interface-wrapper" className="expert-audio-call-interface-wrapper">
               <Panel header="Audio Calling..."  bsStyle="primary" >
                 Hello this is epxert calling interface
+                <div id="expertPublisherAudio"></div>
+                <div id="userSubscriberAudio"></div>
               </Panel>
             </div>
           {/*  Expert Audio Calling interface : END */}
