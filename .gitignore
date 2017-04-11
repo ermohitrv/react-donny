@@ -1,4 +1,5 @@
 /client/node_modules
 /client/src/actions/index.js
+/client/node_modules/webpack-dev-server/bin/webpack-dev-server.js
 /server/node_modules
 /server/config/main.js

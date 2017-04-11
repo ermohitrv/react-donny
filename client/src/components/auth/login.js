@@ -17,7 +17,14 @@ var callback = function () {
 
 class Login extends Component {
   handleFormSubmit(formProps) {
-    this.props.loginUser(formProps);
+    this.props.loginUser(formProps).then(
+      (response)=>{
+        console.log('response: '+JSON.stringify(response));
+      },
+      (err) => err.response.json().then(({errors})=> {
+        console.log('err: '+JSON.stringify(err));
+      })
+    )
   }
 
   // specifying verify callback function
@@ -63,7 +70,7 @@ class Login extends Component {
               <Field name="password" className="form-control" required component="input" type="password" />
             </div>
             <div className="form-group text-center g-recaptcha-wrapper">
-              <input type="text" class="form-control g-recaptcha" id="hiddenRecaptcha" name="hiddenRecaptcha"/>
+              <Field id="hiddenRecaptcha" name="hiddenRecaptcha" className="g-recaptcha" required component="input" type="text" />
               <Recaptcha sitekey="6LeMERsUAAAAACSYqxDZEOOicHM8pG023iDHZiH5" render="explicit" onloadCallback={callback} verifyCallback={this.verifyCallback.bind(this)} />
             </div>
             <div className="form-group text-center">
