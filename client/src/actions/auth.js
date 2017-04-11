@@ -8,7 +8,7 @@ import { AUTH_USER, AUTH_ERROR, UNAUTH_USER, FORGOT_PASSWORD_REQUEST, RESET_PASS
 // Authentication actions
 //= ===============================
 
-// TO-DO: Add expiration to cookie
+//login using native auth
 export function loginUser({ email, password }) {
   return function (dispatch) {
     if(email !== undefined && password !== undefined){
@@ -22,6 +22,8 @@ export function loginUser({ email, password }) {
       .catch((error) => {
         errorHandler(dispatch, error.response, AUTH_ERROR);
       });
+    }else{
+      return "empty_parameters";
     }
   };
 }
