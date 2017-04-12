@@ -20,6 +20,9 @@ exports.rechargeVideoSession = function (req, res, next) {
     amount = amount*100;    //cents
     percentageAmount = percentageAmount*100;  //cents
 
+    console.log('****** ****** amount: '+amount);
+    console.log('****** ****** percentageAmount: '+percentageAmount);
+
     stripe.charges.create({
      amount: amount,
      currency: config.stripePaymentCurrencyCode,
