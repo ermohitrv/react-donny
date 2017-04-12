@@ -102,8 +102,7 @@ class ExpertAudioCall extends Component {
             });
       },
       (err) => err.response.json().then(({errors})=> {
-        alert('error');
-
+        //alert('error');
       })
     )
 

@@ -3,7 +3,7 @@ import { Link, IndexLink } from 'react-router';
 import { connect } from 'react-redux';
 import { API_URL, CLIENT_ROOT_URL, errorHandler } from '../../actions/index';
 import { Field, reduxForm } from 'redux-form';
-import { sendEmail, sendTextMessage, checkBeforeSessionStart, createAudioSession } from '../../actions/expert';
+import { sendEmail, sendTextMessage, checkBeforeSessionStart, createAudioSession, startRecording } from '../../actions/expert';
 import axios from 'axios';
 import ExpertReviews from './ExpertReviews';
 import cookie from 'react-cookie';
@@ -64,11 +64,20 @@ class ViewExpert extends Component {
     this.close = this.close.bind(this);
   }
   
-  startAudioRecording(){
-      this.setState({
-          startAudioRecording: true
-      });
-  };
+    startAudioRecording(){
+        this.setState({
+        startAudioRecording: true
+        });
+
+        this.props.startRecording().then(
+            (response) => {
+                console.log('*** start recording success ***'+ response);
+            },
+            (err) => err.response.json().then(({errors}) => {
+                console.log('*** start recording error ***'+ errors);
+            })
+        )
+    };
   
   stopAudioRecording(){
       this.setState({
@@ -425,7 +434,7 @@ class ViewExpert extends Component {
                                   { currentUser ? <Link title="Audio Call"  onClick={this.callNowButtonClick.bind(this)} className="Audio-Call">  Audio Call </Link> : <Link title="Audio Call" to="javascript:void(0)" data-toggle="modal" data-target="#myModalAudio" className="Audio-Call"> Audio Call</Link>}
                                </li>
                        
-                               {/* <li>{ !this.state.startAudioRecording ? <Link title="Start Audio Recording" onClick={ this.startAudioRecording.bind(this) } className="start-audio-recording btn btn-success"> Start Recording </Link> :  <Link title="Stop Audio Recording" onClick={ this.stopAudioRecording.bind(this) } className="stop-audio-recording btn btn-danger"> Stop Recording </Link> }       </li> */}
+                               { <li>{ !this.state.startAudioRecording ? <Link title="Start Audio Recording" onClick={ this.startAudioRecording.bind(this) } className="start-audio-recording btn btn-success"> Start Recording </Link> :  <Link title="Stop Audio Recording" onClick={ this.stopAudioRecording.bind(this) } className="stop-audio-recording btn btn-danger"> Stop Recording </Link> }       </li> }
                              </ul>
                              <div>
                                <Link title="Start Session" to="javascript:void(0)" data-toggle="modal" className="notification-modal" data-target="#notificationModal"></Link>
@@ -628,4 +637,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, { sendEmail, sendTextMessage, checkBeforeSessionStart, createAudioSession })(form(ViewExpert));
+export default connect(mapStateToProps, { sendEmail, sendTextMessage, checkBeforeSessionStart, createAudioSession, startRecording })(form(ViewExpert));

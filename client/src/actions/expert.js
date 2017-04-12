@@ -163,3 +163,17 @@ export function audioCallTokenRequest({ email }) {
     });
   };
 }
+
+export function startRecording(){
+    return function (dispatch) {
+        return axios.get(`${API_URL}/start_recording`)
+        .then((response) => {
+          return response.data;
+            //return {email};
+        })
+        .catch((error) => {
+          console.log('error: '+error);
+          errorHandler(dispatch, error.response, AUTH_ERROR);
+        });
+  };
+}

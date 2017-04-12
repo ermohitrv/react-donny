@@ -19,6 +19,7 @@
     "passport-facebook": "^2.1.1",
     "react": "~15.2.1",
     "react-bootstrap": "^0.30.8",
+    "react-chatview": "^0.1.1",
     "react-cookie": "^0.4.7",
     "react-dom": "~15.2.1",
     "react-form-validate": "^1.0.3",

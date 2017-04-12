@@ -9,7 +9,9 @@ const AudiosessionSchema = new Schema({
     sessionUserToken      : {type: String, default: ''},
     sessionCreationDate   : {type: Date, default: Date.now()},
     sessionDuration       : {type: String, default: ''},
-    sessionActiveStatus   : {type: String, enum: ["ACTIVE","INACTIVE"]}
+    sessionActiveStatus   : {type: String, enum: ["ACTIVE","INACTIVE"]},
+    
+    archiveSessionId      : {type: String, default: ''},
   },
   {
     timestamps: true // Saves createdAt and updatedAt as dates. createdAt will be our timestamp.
