@@ -52,10 +52,10 @@ const UserSchema = new Schema({
   fbLoginAccessToken    : {type: String, default: ''},
   jwtLoginAccessToken   : {type: String, default: ''},
   loginSource           : {type: String, enum: [LOGIN_SOURCE_FACEBOOK, LOGIN_SOURCE_TWITTER, LOGIN_SOURCE_GMAIL]},
-  onlineStatus          : {type: String, enum: [STATUS_ONLINE, STATUS_OFFLINE]}
-  //sessionId             : {type: String, default: ''},  //should be common to create connection btwn user and expert
-  //sessionToken          : {type: String, default: ''},  //should be different
-  //sessionStatus         : {type: String, enum: [SESSION_ACTIVE, SESSION_INACTIVE]}
+  onlineStatus          : {type: String, enum: [STATUS_ONLINE, STATUS_OFFLINE]},
+  videoSessionId        : {type: String, default: ''},
+  audioSessionId        : {type: String, default: ''},
+  archiveSessionId      : {type: String, default: ''}
 },
   {
     timestamps: true
