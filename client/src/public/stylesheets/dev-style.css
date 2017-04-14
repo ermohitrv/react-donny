@@ -179,14 +179,19 @@ input#hiddenRecaptcha{ visibility: hidden; height: 0; width: 0}
 
 /********** Audio calling CSS : START ********/
 
-.expert-audio-call-interface-wrapper {
+.expert-audio-call-interface-wrapper, .record-audio-call-wrapper {
     position: fixed;
     bottom: 0;
     right: 0;
-    width: 400px;
-    height: 300px;
+    height: 280px;
     display: none;
     z-index: 9;
+}
+.record-audio-call-wrapper.show{
+    display: block;
+}
+ul.Action_icon li a.open-audio-recording-pop-up{
+    background-image: url('../img/microphone.png');
 }
 
 /********** Audio calling CSS : END ********/

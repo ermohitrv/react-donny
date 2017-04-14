@@ -3,6 +3,7 @@ const UserController = require('./controllers/user');
 const ExpertsController = require('./controllers/experts');
 const VideoSessionController = require('./controllers/videosession');
 const AudioSessionController = require('./controllers/audiosession');
+const ArchiveSessionController = require('./controllers/archivesession');
 const ChatController = require('./controllers/chat');
 const ExpertChatController = require('./controllers/expertchat');
 const CommunicationController = require('./controllers/communication');
@@ -128,9 +129,15 @@ module.exports = function (app) {
   //to be joined by user
   apiRoutes.post('/joinVideoSession/', VideoSessionController.joinVideoSession);
   
-  // Audion call session route
+  // Audio call session route
   apiRoutes.post('/createAudioSession/', AudioSessionController.createAudioSession);
   apiRoutes.get('/requestForToken/:email', AudioSessionController.requestForToken);
+  
+  // recording audio call session route
+  apiRoutes.post('/start_recording', ArchiveSessionController.start_recording);
+  apiRoutes.get('/stop_recording/:expertEmail/:userEmail/:archiveID', ArchiveSessionController.stop_recording);
+  apiRoutes.post('/getArchiveSessionAndToken', ArchiveSessionController.getArchiveSessionAndToken);
+  apiRoutes.post('/send_recording', ArchiveSessionController.send_recording);
 
   //= ========================
   // Chat Routes

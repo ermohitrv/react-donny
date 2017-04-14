@@ -363,7 +363,7 @@ ul.Action_icon li {
     display: inline-block;
 }
 
-ul.Action_icon li a {
+ul.Action_icon li a:not(.start-audio-recording):not(.stop-audio-recording) {
     width: 35px;
     height: 35px;
     display: block;
@@ -395,7 +395,7 @@ ul.Action_icon li a.Audio-Call:hover{background-image: url('../img/Audio-Call.pn
 
 
 
-ul.Action_icon li:last-child a {
+ul.Action_icon li:last-child a:not(.start-audio-recording):not(.stop-audio-recording)  {
     margin-right: 0;
 }
 

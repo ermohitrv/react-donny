@@ -3,15 +3,16 @@ import { Link, IndexLink } from 'react-router';
 import { connect } from 'react-redux';
 import { API_URL, CLIENT_ROOT_URL, errorHandler } from '../../actions/index';
 import { Field, reduxForm } from 'redux-form';
-import { sendEmail, sendTextMessage, checkBeforeSessionStart, createAudioSession, startRecording } from '../../actions/expert';
+import { sendEmail, sendTextMessage, checkBeforeSessionStart, createAudioSession, startRecording, stopRecording } from '../../actions/expert';
 import axios from 'axios';
 import ExpertReviews from './ExpertReviews';
+import AudioRecording from './AudioRecording';
 import cookie from 'react-cookie';
 import LoginModal from './login-modal';
 import * as actions from '../../actions/messaging';
 const socket = actions.socket;
 import NotificationModal from './notification-modal';
-import { Modal, Button } from 'react-bootstrap';
+import { Modal, Button, Panel } from 'react-bootstrap';
 
 const form = reduxForm({
   form: 'email-form'
@@ -33,10 +34,13 @@ const renderTextarea = field => (
 );
 
 class ViewExpert extends Component {
+    
   /*** Class constructor. */
   constructor(props, context) {
+      
+      
     super(props, context);
-
+    
     this.state = {
       category :"",
       showEndCallOptions : false,
@@ -57,32 +61,118 @@ class ViewExpert extends Component {
       showModal: false,
       modalMessageNotification : "Alas, You have no donny's list wallet money in your account. Please recharge your account to start session.",
       modalMessageNotAuthorized : "Dear Expert, You are not authorized to publish your session on someone's channel. Please publish on your channel.",
-      startAudioRecording: false
+      startAudioRecording: false,
+      archiveSessionId: '',
+      archiveStreamtoken: '',
+      archiveID: '',
+      connectionId: ''
     };
 
     this.open = this.open.bind(this);
     this.close = this.close.bind(this);
   }
   
+  
+  
     startAudioRecording(){
-        this.setState({
-        startAudioRecording: true
-        });
+        var self = this;
+        const expertEmail = this.state.expertEmail;
+        const userEmail = this.state.currentUser.email;
+        var pubOptions = {width:200, height:100, insertMode: 'append'};
+        var publisher = '';
+        var session = '';
+        
+        this.props.startRecording({expertEmail, userEmail}).then(
+    	(response)=>{
+            console.log('**** startRecording success ****'+ JSON.stringify(response) );
+            this.setState({
+                archiveSessionId  : response.archiveSessionId,
+                archiveStreamtoken: response.archiveStreamtoken
+            });
+            const archiveSessionId = this.state.archiveSessionId;
+            const archiveStreamtoken = this.state.archiveStreamtoken;
+            session = OT.initSession('45801242', archiveSessionId);
+            
+            session.connect(archiveStreamtoken, function(err, info) {
+                if(err) {
+                  console.log(err.message || err);
+                } else {
+                    console.log('***info ***' + info.connectionId );
+                    publisher = OT.initPublisher('publisherRecordAudio', pubOptions);
+                    session.publish(publisher);
+                    //publisher.publishVideo(false);
+                }
+                
+            });
+            
+            session.on('connectionCreated', function(event){
+                
+                self.setState({
+                    connectionId: event.connection.connectionId
+                });
+                console.log('*** connectionCreated *** '+event.connection.connectionId);
+            });
 
-        this.props.startRecording().then(
-            (response) => {
-                console.log('*** start recording success ***'+ response);
-            },
-            (err) => err.response.json().then(({errors}) => {
-                console.log('*** start recording error ***'+ errors);
-            })
-        )
+            session.on('streamCreated', function(event) {
+                //session.subscribe(event.stream, "subscribers", { insertMode: "append" });
+            });
+
+            session.on('archiveStarted', function(event) {
+              var archiveID = event.id;
+              self.setState({
+                  archiveID: archiveID,
+                  startAudioRecording: true
+              });
+
+              console.log("ARCHIVE STARTED");
+
+            });
+
+            session.on('archiveStopped', function(event) {
+                var archiveID = null;
+                self.setState({
+                  archiveID: archiveID,
+                  startAudioRecording: false
+                });
+                console.log("ARCHIVE STOPPED");
+                //session.unpublish(publisher);
+                session.disconnect();
+                //session.forceDisconnect(self.state.connectionId);
+            });
+              
+        },
+    	(err) => err.response.json().then(({errors})=> {
+            console.log('**** startRecording error ****'+ JSON.stringify(errors) );
+        })
+    )
+
+
     };
   
   stopAudioRecording(){
-      this.setState({
-         startAudioRecording: false 
-      });
+      
+    this.setState({
+        //startAudioRecording: false 
+    });
+    
+    
+    var self = this;
+    const expertEmail = this.state.expertEmail;
+    const userEmail = this.state.currentUser.email;
+    const archiveID = this.state.archiveID;
+    
+    this.props.stopRecording({expertEmail, userEmail, archiveID}).then(
+    	(response)=>{
+            console.log('**** stopRecording success ****'+ JSON.stringify(response) );
+        },
+    	(err) => err.response.json().then(({errors})=> {
+            console.log('**** stopRecording error ****'+ JSON.stringify(errors) );
+        })
+    )
+    
+    
+    
+    
   };
 
   open() { this.setState({showModal: true}); }
@@ -434,7 +524,13 @@ class ViewExpert extends Component {
                                   { currentUser ? <Link title="Audio Call"  onClick={this.callNowButtonClick.bind(this)} className="Audio-Call">  Audio Call </Link> : <Link title="Audio Call" to="javascript:void(0)" data-toggle="modal" data-target="#myModalAudio" className="Audio-Call"> Audio Call</Link>}
                                </li>
                        
-                               { <li>{ !this.state.startAudioRecording ? <Link title="Start Audio Recording" onClick={ this.startAudioRecording.bind(this) } className="start-audio-recording btn btn-success"> Start Recording </Link> :  <Link title="Stop Audio Recording" onClick={ this.stopAudioRecording.bind(this) } className="stop-audio-recording btn btn-danger"> Stop Recording </Link> }       </li> }
+                               
+                               <li><AudioRecording expertSlug={this.props.params.slug} /></li> 
+                               
+                                
+                       
+                       
+                       
                              </ul>
                              <div>
                                <Link title="Start Session" to="javascript:void(0)" data-toggle="modal" className="notification-modal" data-target="#notificationModal"></Link>
@@ -443,6 +539,9 @@ class ViewExpert extends Component {
                           </div>
 	                       <div id="publisherAudio"></div>
                                <div id="expertSubscriberAudio"></div>
+                               
+                               
+                                
                           <div className="col-md-9 col-sm-8">
                              <div className="profile-detail">
                                 <div className="name">
@@ -614,6 +713,11 @@ class ViewExpert extends Component {
                </div>
              </div>
            </div> {/* myModalTextMessage end here */}
+   
+   
+              
+   
+   
      </div>
     );
   }
@@ -637,4 +741,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, { sendEmail, sendTextMessage, checkBeforeSessionStart, createAudioSession, startRecording })(form(ViewExpert));
+export default connect(mapStateToProps, { sendEmail, sendTextMessage, checkBeforeSessionStart, createAudioSession, startRecording, stopRecording })(form(ViewExpert));

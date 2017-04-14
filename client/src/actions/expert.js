@@ -164,9 +164,12 @@ export function audioCallTokenRequest({ email }) {
   };
 }
 
-export function startRecording(){
+
+
+
+export function startRecording({ expertEmail, userEmail, archiveSessionId }){
     return function (dispatch) {
-        return axios.get(`${API_URL}/start_recording`)
+        return axios.post(`${API_URL}/start_recording`, { expertEmail, userEmail, archiveSessionId })
         .then((response) => {
           return response.data;
             //return {email};
@@ -176,4 +179,46 @@ export function startRecording(){
           errorHandler(dispatch, error.response, AUTH_ERROR);
         });
   };
+}
+
+export function stopRecording({expertEmail, userEmail, archiveID}){
+    return function (dispatch) {
+        return axios.get(`${API_URL}/stop_recording/${expertEmail}/${userEmail}/${archiveID}`)
+        .then((response) => {
+          return response.data;
+            //return {email};
+        })
+        .catch((error) => {
+          console.log('error: '+error);
+          errorHandler(dispatch, error.response, AUTH_ERROR);
+        });
+  };
+} 
+
+export function sendRecording({ expertEmail, userEmail, archiveID }){
+    return function (dispatch) {
+        return axios.post(`${API_URL}/send_recording`, { expertEmail, userEmail, archiveID })
+        .then((response) => {
+          return response.data;
+            //return {email};
+        })
+        .catch((error) => {
+          console.log('error: '+error);
+          errorHandler(dispatch, error.response, AUTH_ERROR);
+        });
+  };
+}
+
+export function getArchiveSessionAndToken({ expertEmail, userEmail, archiveSessionId }){
+    return function (dispatch) {
+        return axios.post(`${API_URL}/getArchiveSessionAndToken`, { expertEmail, userEmail, archiveSessionId })
+        .then((response) => {
+          return response.data;
+            //return {email};
+        })
+        .catch((error) => {
+          console.log('error: '+error);
+          errorHandler(dispatch, error.response, AUTH_ERROR);
+        });
+    };
 }
