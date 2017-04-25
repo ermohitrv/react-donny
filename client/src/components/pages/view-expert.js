@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Link, IndexLink } from 'react-router';
 import { connect } from 'react-redux';
-import { API_URL, CLIENT_ROOT_URL, errorHandler } from '../../actions/index';
+import { API_URL, CLIENT_ROOT_URL, errorHandler, tokBoxApikey } from '../../actions/index';
 import { Field, reduxForm } from 'redux-form';
 import { sendEmail, sendTextMessage, checkBeforeSessionStart, createAudioSession, startRecording, stopRecording } from '../../actions/expert';
 import axios from 'axios';
@@ -13,6 +13,8 @@ import * as actions from '../../actions/messaging';
 const socket = actions.socket;
 import NotificationModal from './notification-modal';
 import { Modal, Button, Panel } from 'react-bootstrap';
+import $ from 'jquery';
+
 
 const form = reduxForm({
   form: 'email-form'
@@ -57,6 +59,7 @@ class ViewExpert extends Component {
       apiToken: '',
       expertUsername: this.props.params.slug,
       expertAudioCallSokcetname: 'expert-audio-session-'+this.props.params.slug,
+      userAudioCallSokcetname: cookie.load('user') ? 'user-audio-session-'+ cookie.load('user').slug : '',
       currentUser: cookie.load('user'),
       showModal: false,
       modalMessageNotification : "Alas, You have no donny's list wallet money in your account. Please recharge your account to start session.",
@@ -65,116 +68,43 @@ class ViewExpert extends Component {
       archiveSessionId: '',
       archiveStreamtoken: '',
       archiveID: '',
-      connectionId: ''
+      connectionId: '',
+      pubOptions: {width:100, height:75, insertMode: 'append'},
+      publisherObj: '',
+      sessionObj: '',
+      openCallConnecting : false,
+      audioCalling: false,
+      newConAudioId: '',
+      userConnectionId: '',
+      
+      totalSeconds: 0,
+      refreshIntervalId: ''
     };
 
     this.open = this.open.bind(this);
     this.close = this.close.bind(this);
+    
+    this.setTime = this.setTime.bind(this);
+    
+    
+    var user = cookie.load('user');
+    if(user){ // user cookie is set
+      const userRole = user.role
+      if(userRole == 'User'){
+        //console.log('**** username ****'+user.slug);
+        const username = user.slug;
+        var userAudioCallSokcetname = 'user-audio-session-'+username;
+        
+        socket.emit('expert audio call session', userAudioCallSokcetname);
+        console.log('*** expert audio call session : from user ***'+this.state.userAudioCallSokcetname);
+      }
+    }
   }
   
-  
-  
-    startAudioRecording(){
-        var self = this;
-        const expertEmail = this.state.expertEmail;
-        const userEmail = this.state.currentUser.email;
-        var pubOptions = {width:200, height:100, insertMode: 'append'};
-        var publisher = '';
-        var session = '';
-        
-        this.props.startRecording({expertEmail, userEmail}).then(
-    	(response)=>{
-            console.log('**** startRecording success ****'+ JSON.stringify(response) );
-            this.setState({
-                archiveSessionId  : response.archiveSessionId,
-                archiveStreamtoken: response.archiveStreamtoken
-            });
-            const archiveSessionId = this.state.archiveSessionId;
-            const archiveStreamtoken = this.state.archiveStreamtoken;
-            session = OT.initSession('45801242', archiveSessionId);
-            
-            session.connect(archiveStreamtoken, function(err, info) {
-                if(err) {
-                  console.log(err.message || err);
-                } else {
-                    console.log('***info ***' + info.connectionId );
-                    publisher = OT.initPublisher('publisherRecordAudio', pubOptions);
-                    session.publish(publisher);
-                    //publisher.publishVideo(false);
-                }
-                
-            });
-            
-            session.on('connectionCreated', function(event){
-                
-                self.setState({
-                    connectionId: event.connection.connectionId
-                });
-                console.log('*** connectionCreated *** '+event.connection.connectionId);
-            });
-
-            session.on('streamCreated', function(event) {
-                //session.subscribe(event.stream, "subscribers", { insertMode: "append" });
-            });
-
-            session.on('archiveStarted', function(event) {
-              var archiveID = event.id;
-              self.setState({
-                  archiveID: archiveID,
-                  startAudioRecording: true
-              });
-
-              console.log("ARCHIVE STARTED");
-
-            });
-
-            session.on('archiveStopped', function(event) {
-                var archiveID = null;
-                self.setState({
-                  archiveID: archiveID,
-                  startAudioRecording: false
-                });
-                console.log("ARCHIVE STOPPED");
-                //session.unpublish(publisher);
-                session.disconnect();
-                //session.forceDisconnect(self.state.connectionId);
-            });
-              
-        },
-    	(err) => err.response.json().then(({errors})=> {
-            console.log('**** startRecording error ****'+ JSON.stringify(errors) );
-        })
-    )
-
-
-    };
-  
-  stopAudioRecording(){
-      
-    this.setState({
-        //startAudioRecording: false 
-    });
-    
-    
-    var self = this;
-    const expertEmail = this.state.expertEmail;
-    const userEmail = this.state.currentUser.email;
-    const archiveID = this.state.archiveID;
-    
-    this.props.stopRecording({expertEmail, userEmail, archiveID}).then(
-    	(response)=>{
-            console.log('**** stopRecording success ****'+ JSON.stringify(response) );
-        },
-    	(err) => err.response.json().then(({errors})=> {
-            console.log('**** stopRecording error ****'+ JSON.stringify(errors) );
-        })
-    )
-    
-    
-    
-    
+  disconnectAudioCall(){
+    this.state.sessionObj.disconnect();
   };
-
+  
   open() { this.setState({showModal: true}); }
   close() { this.setState({showModal: false}); }
 
@@ -237,46 +167,91 @@ class ViewExpert extends Component {
   callNowButtonClick(e){
     e.preventDefault();
     
+    this.setState({
+        openCallConnecting: true
+    });
+    
+    
+    const self = this;
     const expertAudioCallSokcetname = this.state.expertAudioCallSokcetname;
     const audioCallFrom = this.state.currentUser.firstName + ' ' + this.state.currentUser.lastName;
-//    
-//    var data = {
-//        expertAudioCallSokcetname: expertAudioCallSokcetname,
-//        audioCallFrom: audioCallFrom
-//    };
-//    socket.emit('audio call to expert', data);
-//    
-//    return;
+
 
     const expertEmail = this.state.expertEmail;
     const currentUser = cookie.load('user');
     const userEmail = currentUser.email;
+    const username = currentUser.slug;
 
     console.log('case 1 expertEmail: '+expertEmail + ' userEmail: '+userEmail);
 
-    this.props.createAudioSession({expertEmail, userEmail}).then(
+    this.props.createAudioSession({expertEmail, userEmail, username}).then(
     	(response)=>{
             console.log('**** createAudioSession this.state.sessionId ****'+ JSON.stringify(response) );
             this.setState({sessionId  : response.sessionId });
             this.setState({apiToken   : response.token });
-            var session = OT.initSession('45801242', this.state.sessionId);
-
+            var session = OT.initSession(tokBoxApikey, this.state.sessionId); 
             
+            this.setState({
+                sessionObj: session,
+                newConAudioId: response.newConAudioId
+            });
+            
+
+            var pubOptions = {videoSource: null, width:100, height:75, insertMode: 'append'};
+            var publisher = '';
 
             session.on('streamCreated', function(event){
                 console.log('streamCreated');
-                var options = {width:200, height:100};
+                
+                publisher = OT.initPublisher('userPublisherAudio', pubOptions);
+                session.publish(publisher);
+                
+                self.setState({
+                   publisherObj:  publisher
+                });
+                
+                var options = {width:100, height:75, insertMode: 'append'};
                 var subscriber = session.subscribe(event.stream, 'expertSubscriberAudio' , options);
+                
+                $('#user-audio-call-interface-wrapper').fadeIn();
+                self.setState({
+                    openCallConnecting : false
+                });
+                var refreshIntervalId = setInterval(self.setTime, 1000);
+                self.setState({
+                    refreshIntervalId
+                });
+                
             });
-
+            
             session.on('connectionCreated', function(event){
                 console.log('connectionCreated');
             });
 
             session.on('connectionDestroyed', function(event){
                 console.log('connectionDestroyed');
+                session.disconnect();
+                $('#user-audio-call-interface-wrapper').fadeOut();
+                var refreshIntervalId = self.state.refreshIntervalId;
+                clearInterval(refreshIntervalId);
+                self.setState({
+                    totalSeconds: 0,
+                    refreshIntervalId: ''
+                });
+                
             });
-
+            
+            session.on('sessionDisconnected', function(event){
+                console.log('sessionDisconnected');
+                $('#user-audio-call-interface-wrapper').fadeOut();
+                var refreshIntervalId = self.state.refreshIntervalId;
+                clearInterval(refreshIntervalId);
+                self.setState({
+                    totalSeconds: 0,
+                    refreshIntervalId: ''
+                });
+            });
+            
             session.on('streamDestroyed', function(event){
                 console.log('streamDestroyed');
             });
@@ -285,18 +260,19 @@ class ViewExpert extends Component {
                 if(error){
                     console.log('session connection error');
                 } else {
-                    //var publisher = OT.initPublisher('45801242', 'publisher',{width:'100%', height:'603px'});
-                    //session.publish(publisher);
-                    var pubOptions = {videoSource: null, width:200, height:100};
-                    var publisher = OT.initPublisher('publisherAudio', pubOptions);
-                    session.publish(publisher);
-
                     var data = {
                         expertAudioCallSokcetname: expertAudioCallSokcetname,
-                        audioCallFrom: audioCallFrom
+                        audioCallFrom: audioCallFrom,
+                        newConAudioId: self.state.newConAudioId,
+                        userAudioCallSokcetname: self.state.userAudioCallSokcetname,
+                        userConnectionId: session.connection.connectionId,
                     };
                     socket.emit('audio call to expert', data);
-                    publisher.publishVideo(false);
+                    //console.log('*** audio call to expert on session connect ***'+self.state.userAudioCallSokcetname);
+                    
+                    self.setState({
+                        userConnectionId: session.connection.connectionId
+                    });
                 }
             });
 
@@ -355,7 +331,45 @@ class ViewExpert extends Component {
           }
         });
       });
-	}
+      
+      var self = this;
+      socket.on('disconnect incoming audio call to user', function(data){
+        console.log('*** disconnect incoming audio call to user ***'+ data.userAudioCallSokcetname);
+        self.state.sessionObj.disconnect();
+        self.setState({
+         openCallConnecting: false   
+        });
+      });
+      
+  }
+  
+    setTime() {
+        var totalSeconds = this.state.totalSeconds;
+        ++totalSeconds;
+        this.setState({
+            totalSeconds: totalSeconds
+        });
+        
+       
+        var secondsLabel = this.pad(totalSeconds%60);
+        var minutesLabel = this.pad(parseInt(totalSeconds/60));
+        
+        $('#user_audio_call_seconds').html(secondsLabel);
+        $('#user_audio_call_minutes').html(minutesLabel);
+    }
+    
+    pad(val)
+    {
+        var valString = val + "";
+        if(valString.length < 2)
+        {
+            return "0" + valString;
+        }
+        else
+        {
+            return valString;
+        }
+    }
 
   renderLoading() {
     return <img className="loader-center" src="/src/public/img/ajax-loader.gif"/>;
@@ -537,8 +551,71 @@ class ViewExpert extends Component {
                                { currentUser ? <NotificationModal userEmail={currentUser.email} expertSlug={this.props.params.slug} modalId="notificationModal" modalMessage={this.state.modalMessageNotification}/> : "" }
                              </div>
                           </div>
-	                       <div id="publisherAudio"></div>
-                               <div id="expertSubscriberAudio"></div>
+	                       
+                                
+                            {/*
+                            <div id="user-audio-call-interface-wrapper" className={ "expert-audio-call-interface-wrapper audio-call-interface-wrapper " + ( this.state.audioCalling ? 'open' : 'close' ) }>
+                                <Panel header="Audio Calling..."  bsStyle="primary" >
+                                  
+                                  <div id="userPublisherAudio"></div>
+                                  <div id="expertSubscriberAudio"></div>
+                                  <button onClick={ this.disconnectAudioCall.bind(this) } className="btn btn-danger" type="button">Disconnect</button>
+                                </Panel>
+                            </div>
+                            */}
+                    
+                            {/*  Audio Calling : START  */}
+                            
+                                <div id="user-audio-call-interface-wrapper" className={"expert-audio-call-interface-wrapper conn3 audio-call-interface-wrapper" }>
+                                    <div className="panel panel-primary">
+                                        <div className="panel-heading">Audio Calling...</div>
+                                        <div className="panel-body audio_call_body">
+                                             <div className="audio_user_call_img">
+                                                  <img src="/src/public/img/Client-img.png" alt="" />
+                                             </div>
+                                             <div className="audio_userrgt_content">
+                                                  <div id="userPublisherAudio"></div>
+                                                  <div id="expertSubscriberAudio"></div>
+                                                  <h3>{ this.state.firstName + ' ' +  this.state.lastName }</h3>
+                                                  <h5><label id="user_audio_call_minutes">00</label>:<label id="user_audio_call_seconds">00</label></h5>  
+                                            </div>
+                                            <button onClick={ this.disconnectAudioCall.bind(this) } className="btn btn-danger"> <img className="incoming_call disconnect_call" src="/src/public/img/call_cancel.png" alt=""/> </button>
+                                        </div>
+                                    </div>
+                              </div> 
+                            
+                            {/* Audio Calling : END */}
+                            
+                            
+                            
+                            
+                    
+                            <div className={ "expert-audio-call-interface-wrapper conn3 call_connecting " + ( this.state.openCallConnecting ? 'open' : 'close' )  }>
+                                <div className="panel panel-primary">
+                                    <div className="panel-heading">Connecting...</div>
+                                    <div className="panel-body audio_call_body">
+                                        <div className="connecting_call_con">
+                                            <div className="audio_user_call_img">
+                                                 <img src="/src/public/img/Client-img.png" alt="" />
+                                            </div>
+
+                                            <div className="connect_loading">
+                                                <div className="spinner">
+                                                    <div className="bounce1"></div>
+                                                    <div className="bounce2"></div>
+                                                    <div className="bounce3"></div>
+                                                </div>
+                                            </div>
+
+                                            <div className="audio_user_call_img flt_rgt">
+                                                 <img src="/src/public/img/Client-img.png" alt="" />
+                                            </div>
+
+                                        </div>
+                                        <button className="btn btn-danger"> <img className="incoming_call disconnect_call" src="/src/public/img/call_cancel.png" alt=""/> </button>
+                                    </div>
+                                </div>
+                            </div>
                                
                                
                                 

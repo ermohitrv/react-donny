@@ -195,3 +195,298 @@ ul.Action_icon li a.open-audio-recording-pop-up{
 }
 
 /********** Audio calling CSS : END ********/
+
+
+
+.incomingAudioCall_main .modal-dialog {
+    width: 450px;
+    margin-top: 50px;
+}
+.incomingAudioCall_main .modal-header {
+    background-color: transparent;
+    border: none;
+    padding-top: 35px;
+    color: #fff;
+    text-align: center;
+}
+.incomingAudioCall_main .userDetail {
+    display: inline-block;
+    width: 100%;text-align: center;
+}
+.incomingAudioCall_main .user_img {
+    display: inline-block;
+    width: 100px;
+    height: 100px;
+    border-radius: 100%;
+    overflow: hidden;
+    border: 5px solid rgba(230,230,230,0.3);
+}
+.incomingAudioCall_main .user_img img {
+    max-width: 100%;
+    min-height: 100px;min-width: 100%;
+}
+.incomingAudioCall_main .userDetail h3 {
+    font-size: 16px; color: #fff;
+    margin: 10px 0;
+}
+.incomingAudioCall_popup .modal-footer {
+    border-top: none; padding-top: 0px;
+    padding-bottom: 50px;
+    text-align: center;
+}
+.incomingAudioCall_popup .modal-footer button.btn {
+    width: 100px;
+    margin: 0 10px;padding: 8px 6px;
+    border-radius: 25px;
+}
+.incomingAudioCall_popup .modal-footer button.btn img.incoming_call {
+    max-width: 25px;
+}
+
+
+
+
+
+.incomingAudioCall_main {
+    position: fixed;
+    right: -300px;
+    width: 300px;
+    background-color: #23282e;
+    top: 20%;
+    z-index: 99999;
+    -webkit-animation: transition: ease-in 0.5s;
+    -moz-transition: ease-in 0.5s;
+    transition: ease-in 0.5s;
+}
+.incomingAudioCall_popup {
+    display: inline-block;
+    width: 100%;
+}
+.expert-audio-call-interface-wrapper.conn3 {
+    position: fixed;
+    bottom: 15px;
+    right: 20px;
+    display: none;
+    width: 300px;
+    top: inherit;
+    height: inherit;
+}
+.expert-audio-call-interface-wrapper.conn3 .audio_user_call_img {
+    float: left;
+    width: 50px;
+    height: 50px;
+    border-radius: 100%;
+    overflow: hidden;
+}
+.expert-audio-call-interface-wrapper.conn3 .audio_user_call_img  img{
+    display: inline-block; max-width: 100%; min-height: 50px; min-width: 50px;
+}
+.audio_userrgt_content {
+    display: inline-block;
+    width: calc(100% - 80px);margin-top: 9px;
+    padding-left: 15px;
+}
+.audio_userrgt_content #userSubscriberAudio {
+    display: none;
+}
+.audio_userrgt_content #expertPublisherAudio {
+    display: none;
+}
+.audio_userrgt_content #userPublisherAudio {
+    display: none;
+}
+.audio_userrgt_content #expertSubscriberAudio {
+    display: none;
+}
+
+.audio_userrgt_content h3 {
+    margin: 0;
+    font-size: 16px;
+    float: left;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.audio_userrgt_content h5 {
+    margin: 5px 0 0;float: left;
+    font-size: 12px;width: 100%;
+    color: #b7b7b7;
+}
+.expert-audio-call-interface-wrapper button.btn img {
+    max-width: 20px;
+}
+.expert-audio-call-interface-wrapper button.btn {
+    padding: 0;
+    font-size: 12px;
+    border-radius: 100%;margin-top: 10px;
+    width: 25px; float: right;
+    height: 25px;
+    line-height: 23px;
+    text-align: center;
+}
+.call_connecting .connecting_call_con {
+    float: left;
+    width: calc(100% - 70px);
+    text-align: center;
+    padding: 0;
+}
+.call_connecting .connecting_call_con .audio_user_call_img.flt_rgt {
+    float: right;
+}
+.call_connecting .connecting_call_con .connect_loading {
+    display: inline-block;
+    width: auto;
+}
+.call_connecting .connecting_call_con .connect_loading .spinner {
+    margin-top: 23px;
+}
+.expert-audio-call-interface-wrapper.call_connecting button.btn {
+    margin-top: 15px;
+}
+
+.expert-audio-call-interface-wrapper.conn3.call_connecting.close{
+    display: none;
+}
+.expert-audio-call-interface-wrapper.conn3.call_connecting.open{
+    display: block;
+}
+
+div#publisherRecordAudio {
+    float: left;
+    width: 50px;
+    height: 50px;
+    border-radius: 100%;
+    overflow: hidden;
+}
+div#publisherRecordAudio .OT_mirrored.OT_root.OT_publisher , div#publisherRecordAudio .OT_mirrored.OT_root.OT_publisher:hover , div#publisherRecordAudio .OT_mirrored.OT_root.OT_publisher:focus {
+    float: left;
+    width: 100% !important;
+    height: 100% !important;
+    background: none !important;
+}
+div#publisherRecordAudio .OT_mirrored.OT_root.OT_publisher .OT_widget-container {
+    background-color: #c1c1c1;
+}
+div#publisherRecordAudio .OT_archiving.OT_edge-bar-item {
+    position: absolute;
+    right: 13px;
+    top: -4px;
+    width: 15px;
+    height: 15px;
+    left: inherit;
+}
+div#publisherRecordAudio .OT_archiving.OT_edge-bar-item .OT_archiving-light-box {
+    background: none !important;
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 100%;
+}
+.record-audio-call-wrapper.recoding_call_con {
+    height: auto;
+    width: 250px;
+    text-align: left;
+}
+.record-audio-call-wrapper.recoding_call_con .close {
+    position: absolute;
+    right: 4px;
+    top: 15px;
+    color: #ffffff;
+    opacity: 1;
+    font-size: 15px;
+    text-shadow: none;
+    padding: 0 10px;
+}
+.recording_dd_con {
+    float: right; margin-top: 10px;
+    width: calc(100% - 65px);
+}
+.record-audio-call-wrapper.recoding_call_con .OT_audio-level-meter {
+    display: none;
+}
+.recording_dd_con .recording_timing {
+    float: left;    margin-top: 5px;
+    font-size: 14px;
+    color: #9a9a9a;
+}
+.recording_dd_con a.start-audio-recording {
+    float: right;
+    width: 30px; cursor: pointer;
+    height: 30px;
+    border-radius: 100%;
+    border: 1px solid #a94442;
+    padding: 0;
+}
+.recording_dd_con a.start-audio-recording span.recording_start {
+    float: left;
+    width: 15px;
+    height: 15px;
+    border-radius: 100%;
+    background-color: #a94442;
+    margin: 6px 0 0 6.5px;
+}
+.recording_dd_con a.stop-audio-recording {
+    float: right;
+    width: 30px; cursor: pointer;
+    height: 30px;
+    border-radius: 100%;
+    border: 1px solid #a94442;
+    padding: 0;
+}
+.recording_dd_con a.stop-audio-recording span.recording_stop {
+    float: left;
+    width: 12px;
+    height: 12px;
+    border-radius: 1px;
+    background-color: #a94442;
+    margin: 7.8px 0 0 8.2px;
+}
+.record-audio-call-wrapper.recoding_call_con .loader-center{max-width: 100px;}
+.audio-call-interface-wrapper.open{ display: block; }
+.audio-call-interface-wrapper.close{ display: none; }
+
+
+/* Loading Animation */
+.spinner {
+  margin: auto;
+  width: 70px;
+  text-align: center;
+}
+
+.spinner > div {
+  width: 10px;
+  height: 10px;
+  background-color: #337ab7;
+  margin: 0 3px;
+  border-radius: 100%;
+  display: inline-block;
+  -webkit-animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+  animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+}
+
+.spinner .bounce1 {
+  -webkit-animation-delay: -0.32s;
+  animation-delay: -0.32s;
+}
+
+.spinner .bounce2 {
+  -webkit-animation-delay: -0.16s;
+  animation-delay: -0.16s;
+}
+
+@-webkit-keyframes sk-bouncedelay {
+  0%, 80%, 100% { -webkit-transform: scale(0) }
+  40% { -webkit-transform: scale(1.0) }
+}
+
+@keyframes sk-bouncedelay {
+  0%, 80%, 100% { 
+    -webkit-transform: scale(0);
+    transform: scale(0);
+  } 40% { 
+    -webkit-transform: scale(1.0);
+    transform: scale(1.0);
+  }
+}

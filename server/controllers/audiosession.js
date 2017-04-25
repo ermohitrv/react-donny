@@ -11,63 +11,58 @@ var opentok = new OpenTok(config.opentok_apiKey, config.opentok_apiSecret);
 
 /* API endpoint to create audio session  */
 exports.createAudioSession = function (req, res, next) {
+    var expertEmail = req.body.expertEmail;
+    var userEmail = req.body.userEmail;
+    var username = req.body.username;
+            
+    opentok.createSession(function (err, session) {
+        var bind = {};
+        if(err){
+            bind['status'] = 0;
+            bind['message'] = 'Oops! error occur while creating session';
+            bind['error'] = err;
+            
+            return res.json(bind);
+        } else {
+            // Generate a token.
+            var token = opentok.generateToken(session.sessionId);
 
-    const expertEmail = req.body.expertEmail;
-            const userEmail = req.body.userEmail;
-            //const sessionOwner = req.body.sessionOwner;
+            //addition of new record to table
 
-            AudioSession.findOne({expertEmail: expertEmail, sessionId: {$ne: ''}}, function (err, sessionInfo) {
-                if (sessionInfo) {
-                    var token = opentok.generateToken(sessionInfo.sessionId);
-                    return res.json({sessionId: sessionInfo.sessionId, token: token, err: ""});
+            var newConAudio = new AudioSession();
+            newConAudio.expertEmail = expertEmail;
+            newConAudio.userEmail = userEmail;
+            newConAudio.username = username;
+            newConAudio.sessionId = session.sessionId;
+            newConAudio.callStatus = 'connecting';
+
+
+            newConAudio.save(function (err) {
+                if (err) {
+                    console.log("error: " + err);
+                    return res.json({err: err, sessionId: "", token: ""});
                 } else {
-
-                    var date1 = new Date(),
-                            expireTime = new Date(date1);
-                    expireTime.setMinutes(date1.getMinutes() + 5600);
-
-                    opentok.createSession(function (err, session) {
-
-                        //  Use the role value appropriate for the user:
-//                var tokenOptions = {};
-//                tokenOptions.role = "publisher";
-//                tokenOptions.data = "username="+existingUser.slug;
-//                tokenOptions.expireTime = moment(expireTime).unix();  //30 minutes expirty set to token
-
-                        // Generate a token.
-                        var token = opentok.generateToken(session.sessionId);
-
-                        //addition of new record to table
-                        var newConAudio = new AudioSession();
-                        newConAudio.sessionId = session.sessionId;
-                        newConAudio.sessionExpertToken = token;
-                        newConAudio.sessionStatus = "ACTIVE";
-                        newConAudio.expertEmail = expertEmail;
-                        newConAudio.userEmail = userEmail;
-
-                        newConAudio.save(function (err) {
-                            if (err) {
-                                console.log("error: " + err);
-                                return res.json({err: err, sessionId: "", token: ""});
-                            } else {
-                                console.log("else 1");
-                                return res.json({err: "", sessionId: session.sessionId, token: token});
-                            }
-                        });
-                    });
-
+                    console.log("else 1");
+                    return res.json({err: "", sessionId: session.sessionId, token: token, newConAudioId: newConAudio._id});
                 }
-
             });
+        }
+    });
 };
 
 exports.requestForToken = function(req, res, next) {
-    const email = req.params.email;
+    const email = req.body.email;
+    const newConAudioId = req.body.newConAudioId;
     
-    AudioSession.findOne({  expertEmail : email, sessionId : { $ne : ''} }, function(err, sessionInfo){
+    AudioSession.findById(newConAudioId, function(err, sessionInfo){
     if (sessionInfo) {
     var token = opentok.generateToken(sessionInfo.sessionId);
-            return res.json({ sessionId: sessionInfo.sessionId, token : token, err : "" });
+            return res.json({
+                sessionId: sessionInfo.sessionId,
+                username: sessionInfo.username,
+                token : token,
+                err : ""
+        });
     } else{
         return res.json({ sessionId: "", token : "", err : "error" });
     }

@@ -150,9 +150,9 @@ export function isLoggedIn() {
   };
 }
 
-export function audioCallTokenRequest({ email }) {
+export function audioCallTokenRequest({ email, newConAudioId }) {
   return function (dispatch) {
-    return axios.get(`${API_URL}/requestForToken/${email}`)
+    return axios.post(`${API_URL}/requestForToken`, { email, newConAudioId })
     .then((response) => {
       return response.data;
         //return {email};
@@ -215,6 +215,46 @@ export function getArchiveSessionAndToken({ expertEmail, userEmail, archiveSessi
         .then((response) => {
           return response.data;
             //return {email};
+        })
+        .catch((error) => {
+          console.log('error: '+error);
+          errorHandler(dispatch, error.response, AUTH_ERROR);
+        });
+    };
+}
+
+export function getExpertRecordings({ expertEmail }){
+    return function (dispatch) {
+        return axios.post(`${API_URL}/getExpertRecordings`, { expertEmail })
+        .then((response) => {
+          return response.data;
+            //return {email};
+        })
+        .catch((error) => {
+          console.log('error: '+error);
+          errorHandler(dispatch, error.response, AUTH_ERROR);
+        });
+    };
+}
+
+export function playRecordedAudio({ archiveId }){
+    return function (dispatch) {
+        return axios.post(`${API_URL}/playRecordedAudio`, { archiveId })
+        .then((response) => {
+          return response.data;
+        })
+        .catch((error) => {
+          console.log('error: '+error);
+          errorHandler(dispatch, error.response, AUTH_ERROR);
+        });
+    };
+} 
+
+export function deleteRecordedAudio({ archiveId, id }){
+    return function (dispatch) {
+        return axios.post(`${API_URL}/deleteRecordedAudio`, { archiveId, id })
+        .then((response) => {
+          return response.data;
         })
         .catch((error) => {
           console.log('error: '+error);

@@ -55,7 +55,8 @@ const UserSchema = new Schema({
   onlineStatus          : {type: String, enum: [STATUS_ONLINE, STATUS_OFFLINE]},
   videoSessionId        : {type: String, default: ''},
   audioSessionId        : {type: String, default: ''},
-  archiveSessionId      : {type: String, default: ''}
+  archiveSessionId      : {type: String, default: ''},
+  audioCallAvailability : {type: Boolean, default: true}    
 },
   {
     timestamps: true
