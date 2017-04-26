@@ -46,7 +46,7 @@ exports.start_recording = function (req, res, next) {
     const expertEmail = req.body.expertEmail;
     const userEmail = req.body.userEmail;
     const archiveSessionId = req.body.archiveSessionId;
-    
+
     User.findOne({ email: expertEmail },  function(err, user){
         const bind = {};
         if(user){
@@ -68,7 +68,7 @@ exports.start_recording = function (req, res, next) {
             bind['message'] = 'Oops! No expert user found';
             return res.json(bind);
         }
-        
+
     });
 };
 
@@ -76,9 +76,9 @@ exports.stop_recording = function (req, res, next) {
     const expertEmail = req.params.expertEmail;
     const userEmail = req.params.userEmail;
     const archiveID = req.params.archiveID;
-    
+
     const bind = {};
-    
+
     opentok.stopArchive(archiveID, function(err, archive) {
       if (err){
           bind['status'] = 0;
@@ -96,7 +96,7 @@ exports.send_recording = function (req, res, next) {
     var expertEmail = req.body.expertEmail;
     var userEmail = req.body.userEmail;
     var archiveID = req.body.archiveID;
-    
+
     User.findOne({ email: expertEmail },  function(err, user){
         const bind = {};
         if(user){
@@ -107,12 +107,15 @@ exports.send_recording = function (req, res, next) {
               } else {
                   bind['status'] = 1;
                   bind['archive_url'] = archive;
-                  
+
                     /* email for session requester */
                     var html = 'Hello , <br> You have new voice message from email: '+userEmail;
                     html += '<p>Clicke here to listen : </p>'+archive.url;
-                    
-                    //expertEmail = 'avadhesh_bhatt@rvtechnologies.co.in';
+
+
+                    expertEmail = 'avadhesh_bhatt@rvtechnologies.co.in';
+                    //expertEmail = 'mohit@rvtechnologies.co.in';
+
                     var mailOptions = {
                         from   : "Donnys list <no-reply@donnyslist.com>",
                         to     : expertEmail,
@@ -127,8 +130,9 @@ exports.send_recording = function (req, res, next) {
                             console.log('*** nodemailer success *** Message %s sent: %s', info.messageId, info.response);
                         }
                         //return res.json(bind);
-                        
+
                     });
+
                     
                     /**** Save archive information to database ****/
                     
@@ -146,6 +150,8 @@ exports.send_recording = function (req, res, next) {
                     newArchiveSession.status = archive.status;
                     
                     newArchiveSession.save();
+
+
               }
               return res.json(bind);
             });
@@ -154,9 +160,10 @@ exports.send_recording = function (req, res, next) {
             bind['message'] = 'Oops! No expert user found';
             return res.json(bind);
         }
-        
+
     });
 };
+
 
 exports.getExpertRecordings = function (req, res, next) {
     var expertEmail = req.body.expertEmail;
