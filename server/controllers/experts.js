@@ -177,6 +177,13 @@ exports.createExpert = function(req, res, next) {
   const expertRating = req.body.expertRating;
   const expertFocusExpertise = req.body.expertFocusExpertise;
   const yearsexpertise = req.body.yearsexpertise;
+  
+  const facebookURL = req.body.facebookLink;
+  const twitterURL = req.body.twitterLink;
+  const instagramURL = req.body.instagramLink;
+  const linkedinURL = req.body.linkedinLink;
+  const snapchatURL = req.body.snapchatLink ? req.body.snapchatLink : '';
+  
 
   // Return error if no email provided
   if (!email) {
@@ -215,7 +222,12 @@ exports.createExpert = function(req, res, next) {
       expertCategories,
       expertRating,
       expertFocusExpertise,
-      yearsexpertise
+      yearsexpertise,
+      facebookURL,
+      twitterURL,
+      instagramURL,
+      linkedinURL,
+      snapchatURL
     });
 
     user.save((err, user) => {

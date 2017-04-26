@@ -55,9 +55,9 @@ export function sendTextMessage({ text_email, text_message, text_expert_email}) 
 //= ===============================
 // create Expert actions
 //= ===============================
-export function createExpert({ firstName, lastName, email, password, userBio, expertContact, expertRates, expertCategories, expertRating, expertFocusExpertise, yearsexpertise }) {
+export function createExpert({ firstName, lastName, email, password, userBio, expertContact, expertRates, expertCategories, expertRating, expertFocusExpertise, yearsexpertise, facebookLink, twitterLink, instagramLink, linkedinLink, snapchatLink }) {
   return function (dispatch) {
-    return axios.post(`${API_URL}/createExpert`, { firstName, lastName, email, password, expertContact, userBio, expertRates, expertCategories, expertRating, expertFocusExpertise, yearsexpertise })
+    return axios.post(`${API_URL}/createExpert`, { firstName, lastName, email, password, expertContact, userBio, expertRates, expertCategories, expertRating, expertFocusExpertise, yearsexpertise, facebookLink, twitterLink, instagramLink, linkedinLink, snapchatLink })
     .then((response) => {
       return response.data;
       console.log('response: '+JSON.stringify(response));

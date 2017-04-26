@@ -38,8 +38,14 @@ const UserSchema = new Schema({
   locationState         : {type: String, default: ''},
   locationCountry       : {type: String, default: ''},
   userBio               : {type: String, default: ''},
+      
   facebookURL           : {type: String, default: ''},
   twitterURL            : {type: String, default: ''},
+  instagramURL          : { type: String },
+  linkedinURL           : { type: String },
+  snapchatURL           : { type: String },
+      
+      
   websiteURL            : {type: String, default: ''},
   enableAccount         : {type: Boolean, default: true}, // true: enable, false: disable
   accountCreationDate   : {type: Date, default: Date.now()},
@@ -56,7 +62,8 @@ const UserSchema = new Schema({
   videoSessionId        : {type: String, default: ''},
   audioSessionId        : {type: String, default: ''},
   archiveSessionId      : {type: String, default: ''},
-  audioCallAvailability : {type: Boolean, default: true}    
+  audioCallAvailability : {type: Boolean, default: true},
+  videoSessionAvailability : {type: Boolean, default: true}    
 },
   {
     timestamps: true

@@ -3,7 +3,7 @@ import { Link, IndexLink  } from 'react-router';
 import moment from 'moment';
 import { connect } from 'react-redux';
 import cookie from 'react-cookie';
-import { API_URL, CLIENT_ROOT_URL, errorHandler } from '../../actions/index';
+import { API_URL, CLIENT_ROOT_URL, errorHandler, tokBoxApikey } from '../../actions/index';
 import { protectedTest } from '../../actions/auth';
 import $ from 'jquery'
 import axios from 'axios';
@@ -97,7 +97,7 @@ class SessionPage extends Component {
 
         var connectionCount;
 
-        var session = OT.initSession('45801242', this.state.sessionId)
+        var session = OT.initSession(tokBoxApikey, this.state.sessionId)
         .on('streamCreated', function(event) {
 
           console.log('streamCreated');

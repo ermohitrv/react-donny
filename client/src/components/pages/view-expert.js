@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Link, IndexLink } from 'react-router';
+import { Link, IndexLink, browserHistory } from 'react-router';
 import { connect } from 'react-redux';
 import { API_URL, CLIENT_ROOT_URL, errorHandler, tokBoxApikey } from '../../actions/index';
 import { Field, reduxForm } from 'redux-form';
@@ -290,7 +290,8 @@ class ViewExpert extends Component {
     var slug = this.props.params.slug;
     axios.get(`${API_URL}/getExpertDetail/${slug}`)
 		  .then(res => {
-		    const expert = res.data[0];
+                      
+        const expert = res.data[0];
         this.setState({firstName : res.data[0].profile.firstName });
         this.setState({lastName : res.data[0].profile.lastName });
         this.setState({expertEmail : res.data[0].email });
@@ -473,6 +474,13 @@ class ViewExpert extends Component {
         this.setState({showModal: true});
     }
   }
+  
+  redirectToLogin(e){
+      e.preventDefault();
+      browserHistory.push('/login');
+      
+      cookie.save('requiredLogin_for_session', 'Please login to start session', { path: '/' });
+  }
 
   renderPosts() {
     const currentUser = cookie.load('user');
@@ -529,7 +537,7 @@ class ViewExpert extends Component {
                              </div>
                              <ul className="Action_icon">
                                <li>
-                                 {currentUser ? <Link data-toggle="tooltip" title="Start Session Test" onClick={this.startSessionCheck.bind(this)} className="Start-Session"></Link> : <div><Link title="Start Session" to="javascript:void(0)" data-toggle="modal" data-target="#loginModal" className="Start-Session"></Link><LoginModal modalId="loginModal" modalMessage="Please login to start session"/></div> }
+                                 {currentUser ? <Link data-toggle="tooltip" title="Start Session Test" onClick={this.startSessionCheck.bind(this)} className="Start-Session"></Link> : <div><Link title="Start Session" to="#" onClick={this.redirectToLogin.bind(this)} className="Start-Session"></Link></div> }
                                </li>
                                <li><Link title="Send E-Mail" data-toggle="modal" data-target="#myModalEmail" className="Send_E-Mail"> Send E-Mail</Link></li>
                                <li><Link title="Send Text Message" data-toggle="modal" data-target="#myModalTextMessage" className="Send-Text-Message"> Send Text Message</Link></li>
@@ -654,6 +662,17 @@ class ViewExpert extends Component {
                                           <dt>About Expert </dt>
                                           <dd>{this.state.expert.userBio}</dd>
                                       </div>
+                                      
+                                      <div className="profile-bor-detail expert-social-links">
+                                          <dt>Social link </dt>
+                                          <dd>
+                                            <a target="_blank" href={ this.state.expert.facebookURL ? this.state.expert.facebookURL : '#'} title="facebook"><i className="fa fa-facebook-official" aria-hidden="true"></i></a>
+                                            <a target="_blank" href={ this.state.expert.twitterURL ? this.state.expert.twitterURL : '#'} title="twitter"><i className="fa fa-twitter" aria-hidden="true"></i></a>
+                                            <a target="_blank" href={ this.state.expert.linkedinURL ? this.state.expert.linkedinURL : '#'} title="linkedin"><i className="fa fa-linkedin" aria-hidden="true"></i></a>
+                                            <a target="_blank" href={ this.state.expert.instagramURL ? this.state.expert.instagramURL : '#'} title="instagram"><i className="fa fa-instagram" aria-hidden="true"></i></a>
+                                          </dd>
+                                      </div>
+                                      
                                    </dl>
                                 </div>
                              </div>

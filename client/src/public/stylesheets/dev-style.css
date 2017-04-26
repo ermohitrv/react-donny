@@ -35,8 +35,10 @@
   list-style-position: outside;
   list-style-type: none;
 }
-.topics li a { width: 100%; text-transform: capitalize; display: block; color: #000; font-size: 13px; font-family: 'Open Sans', sans-serif; padding: 5px 0; }
-.topics li a:hover { text-decoration: none; color: #666; }
+.topics li a { width: 100%; text-transform: capitalize; display: block; color: #000; font-size: 13px; font-family: 'Open Sans', sans-serif; padding: 5px 0; text-shadow: 0 0 5px rgba(0,0,0,0.5); color: transparent;}
+.topics li a:hover { text-decoration: none; color: #666; text-shadow: none;}
+.music-lessions-list-wrapper .topics li a { color: #000; text-shadow: none; }
+.music-lessions-list-wrapper .topics li a:hover { text-decoration: none; color: #666; text-shadow: none;}
 .headerTitle a { width: 100%; text-transform: capitalize; display: block; padding: 0 0 1px 0; color: #000; }
 .homepage a :hover, .headerTitle a :hover { color : white }
 .homepage #center { float : left; margin : 1%; padding : 0; width : 99% }
@@ -75,6 +77,8 @@ font-size: 14px !important; font-family: 'American Typewriter', serif; }
 .profile-dropdown-toggle { color: #fff; font-weight: 600; text-transform: lowercase; margin: 0px 10px; background: #3e9bf4; padding-bottom: 3px; font-size: 14px; padding-right: 13px; padding-left: 13px; padding-top: 3px; border-radius: 12px; font-family: 'American Typewriter', serif; }
 .profile-dropdown-toggle:hover, .profile-dropdown-toggle:focus { color: #fff; background-color: #000; text-decoration: none; }
 .breadcrumb-item { text-transform: capitalize; }
+
+.expert-social-links dd a { font-size: 16px; margin-right: 7px; }
 
 @media(max-width:767px) {
 .navbar-header .navbar-toggle { position: absolute; right: 0; }
