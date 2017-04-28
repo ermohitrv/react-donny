@@ -9,6 +9,11 @@ const ExpertChatController = require('./controllers/expertchat');
 const CommunicationController = require('./controllers/communication');
 const StripeController = require('./controllers/stripe');
 const VideoSessionStripeController = require('./controllers/video-session-stripe');
+
+const AdminsUsersList = require('./controllers/getlist')
+
+var User = require('./models/user')
+
 const express = require('express');
 const passport = require('passport');
 const ROLE_MEMBER = require('./constants').ROLE_MEMBER;
@@ -213,6 +218,21 @@ module.exports = function (app) {
   // Communication Routes
   //= ========================
   apiRoutes.use('/communication', communicationRoutes);
+
+
+  apiRoutes.get('/getUsersList', function(req, res) {
+    console.log("this")
+      User.find({role:"User"}, (err, users) => {
+        if (err) {
+          res.status(400).json({ error: 'No user could be found for this ID.' });
+          return next(err);
+        }
+
+        // const userToReturn = setUserInfo(user);
+
+        return res.status(200).json({ user: users });
+      });
+  });
 
   // Send email from contact form
   communicationRoutes.post('/contact', CommunicationController.sendContactForm);

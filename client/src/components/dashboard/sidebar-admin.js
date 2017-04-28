@@ -11,7 +11,7 @@ class SidebarMenuAdmin extends Component {
             <li>
                 <a href="javascript:void(0)" data-target="#item1" data-toggle="collapse"><i className="fa fa-list"></i> <span className="collapse in hidden-xs">Users Management <span className="caret"></span></span></a>
                 <ul className="nav nav-stacked collapse" id="item1">
-                    <li><Link to="#">List Users</Link></li>
+                    <li><Link to="/dashboard/userslist">List Users</Link></li>
                     <li><Link to="/dashboard/create-expert">Create Expert</Link></li>
                 </ul>
             </li>

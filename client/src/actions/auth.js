@@ -101,6 +101,7 @@ export function resetPassword(token, { password }) {
 }
 
 export function protectedTest() {
+  console.log("protectedTest")
   return function (dispatch) {
     axios.get(`${API_URL}/protected`, {
       headers: { Authorization: cookie.load('token') },

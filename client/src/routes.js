@@ -27,6 +27,7 @@ import ResetPassword from './components/auth/reset_password';
 import Dashboard from './components/dashboard/dashboard';
 import ViewProfile from './components/dashboard/profile/view-profile';
 import Inbox from './components/dashboard/messaging/inbox';
+import UsersList from './components/dashboard/profile/users-list'
 import CreateExpert from './components/dashboard/create-expert';
 import Conversation from './components/dashboard/messaging/conversation';
 import ComposeMessage from './components/dashboard/messaging/compose-message';
@@ -74,6 +75,7 @@ export default (
     <Route path="dashboard">
       <IndexRoute component={RequireAuth(Dashboard)} />
       <Route path="inbox" component={RequireAuth(Inbox)} />
+      <Route path="userslist" component={RequireAuth(UsersList)} />
       <Route path="create-expert" component={RequireAuth(CreateExpert)} />
       <Route path="conversation/new" component={RequireAuth(ComposeMessage)} />
       <Route path="conversation/view/:conversationId" component={RequireAuth(Conversation)} />

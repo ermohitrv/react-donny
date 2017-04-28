@@ -19,8 +19,11 @@ class HomePage extends Component {
 	}
 
 	componentDidMount() {
+		console.log("HERE")
+		debugger
 		axios.get(`${API_URL}/getExpertsCategoryList`)
 		  .then(res => {
+		  	debugger
 		    const posts = res.data.map(obj => obj);
 		    this.setState({
 		      posts,
@@ -66,6 +69,7 @@ class HomePage extends Component {
     if(this.state.error) {
       return this.renderError();
     }
+    debugger
 
     return (
          <div id="experts-list" className="experts-list">
@@ -81,11 +85,15 @@ class HomePage extends Component {
 																		<span className="short-dash"></span>
 																		<span className="short-dash"></span>
 																	</h4>
+																	{/*console.log(post)*/}
                                   <ul className="topics">
                                     {post.subcategory.map(subcat =>
                                       <li key={subcat.id}>
-                                      <Link to={`/list/${subcat.name}`}>{subcat.name}
-                                      </Link></li>
+                                      	<Link to={`/list/${subcat.name}`}>{subcat.name}
+                                      	</Link>
+                                      	{console.log(subcat)}
+                                      </li>
+                                      
                                     )}
                                   </ul>
                                 </div>
