@@ -120,6 +120,11 @@ module.exports = function (app) {
   apiRoutes.post('/sendEmailMessageToExpert', ExpertsController.sendEmailMessageToExpert);
   apiRoutes.post('/sendTextMessageToExpert', ExpertsController.sendTextMessageToExpert);
   apiRoutes.post('/createExpert/', ExpertsController.createExpert);
+  
+  apiRoutes.post('/saveUserReview/', ExpertsController.saveUserReview);
+  
+  apiRoutes.get('/getExpertReviews/:expertSlug', ExpertsController.getExpertReviews);
+  
 
   //= ========================
   // Session Routes

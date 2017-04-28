@@ -24,6 +24,7 @@
     "react-dom": "~15.2.1",
     "react-form-validate": "^1.0.3",
     "react-ga": "^1.4.1",
+    "react-rating": "^0.7.1",
     "react-recaptcha": "^2.2.6",
     "react-redux": "^4.4.5",
     "react-router": "^2.6.0",

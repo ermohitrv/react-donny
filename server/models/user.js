@@ -63,7 +63,8 @@ const UserSchema = new Schema({
   audioSessionId        : {type: String, default: ''},
   archiveSessionId      : {type: String, default: ''},
   audioCallAvailability : {type: Boolean, default: true},
-  videoSessionAvailability : {type: Boolean, default: true}    
+  videoSessionAvailability : {type: Boolean, default: true},
+  expertSessionAvailability :    {type: Boolean, default: false},
 },
   {
     timestamps: true

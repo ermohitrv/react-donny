@@ -80,7 +80,7 @@ export function checkBeforeSessionStart({ expertEmail, userEmail }) {
   console.log('expertEmail: '+expertEmail);
   console.log('userEmail: '+userEmail);
   return function (dispatch) {
-    return axios.post(`${API_URL}/videosession/check-before-session-start`, { userEmail })
+    return axios.post(`${API_URL}/videosession/check-before-session-start`, { expertEmail, userEmail })
     .then((response) => {
       return response.data;
     })
@@ -253,6 +253,32 @@ export function playRecordedAudio({ archiveId }){
 export function deleteRecordedAudio({ archiveId, id }){
     return function (dispatch) {
         return axios.post(`${API_URL}/deleteRecordedAudio`, { archiveId, id })
+        .then((response) => {
+          return response.data;
+        })
+        .catch((error) => {
+          console.log('error: '+error);
+          errorHandler(dispatch, error.response, AUTH_ERROR);
+        });
+    };
+}
+
+export function saveUserReview({ rating, review, title, expertEmail, expertFullName, userEmail, userFullName, expertSlug }){
+    return function (dispatch) {
+        return axios.post(`${API_URL}/saveUserReview`, { rating, review, title, expertEmail, expertFullName, userEmail, userFullName, expertSlug })
+        .then((response) => {
+          return response.data;
+        })
+        .catch((error) => {
+          console.log('error: '+error);
+          errorHandler(dispatch, error.response, AUTH_ERROR);
+        });
+    };
+}
+
+export function getExpertReviews( { expertSlug } ){
+    return function (dispatch) {
+        return axios.get(`${API_URL}/getExpertReviews/${ expertSlug }` )
         .then((response) => {
           return response.data;
         })

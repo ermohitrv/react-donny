@@ -64,16 +64,41 @@ exports.rechargeVideoSession = function (req, res, next) {
 function to check whether user has made the payment before going to start session
 */
 exports.checkBeforeSessionStart = function (req, res, next) {
+  var bind = {};
   var userEmail = req.body.userEmail;
-  if (userEmail) {
-    Videosession.findOne({'userEmail': userEmail, 'sessionCompletionStatus' : "UNCOMPLETED" },function(err, session){
-      if(!err && ( session != null && session != undefined ) ){
-        res.json({'session':session});
-      }else{
-        res.json({'session':session, 'error': err});
+  var expertEmail = req.body.expertEmail;
+  if (expertEmail) {
+    //Videosession.findOne({'userEmail': userEmail, 'sessionCompletionStatus' : "UNCOMPLETED" },function(err, session){
+    User.findOne({email : expertEmail, },function(err, expertInfo){
+      if(err){
+          bind.status = 0;
+          bind.message = 'Oops! error occured while finding exper';
+          bind.error = err;
+          return res.json(bind);
       }
+      
+      if(expertInfo){
+        if(expertInfo && expertInfo.expertSessionAvailability == true && expertInfo.videoSessionAvailability == true){
+            bind.status = 1;
+            bind.data = expertInfo;
+        } else {
+            bind.status = 0;
+            bind.message = 'Expert session is not available right now! Please try after some time';
+        }
+      } else {
+          bind.status = 0;
+          bind.message = 'No expert found!';
+      }
+        return res.json(bind);
+        
+        
+     
     })
   }else{
-    res.status(400).json({"error":"empty parameters"});
+      bind.status = 0;
+      bind.message = 'empty parameters';
+      
+      return res.json(bind);
+    
   }
 };

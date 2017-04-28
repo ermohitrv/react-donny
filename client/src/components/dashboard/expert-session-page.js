@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Link, IndexLink  } from 'react-router';
+import { Link, IndexLink, browserHistory  } from 'react-router';
 import moment from 'moment';
 import { connect } from 'react-redux';
 import cookie from 'react-cookie';
@@ -7,6 +7,7 @@ import { API_URL, CLIENT_ROOT_URL, errorHandler, tokBoxApikey } from '../../acti
 import { protectedTest } from '../../actions/auth';
 import $ from 'jquery'
 import axios from 'axios';
+import { Modal, Button, Panel } from 'react-bootstrap';
 
 import { FetchExpertConversation,ExpertSessionUserDisconnected } from '../../actions/messaging';
 import * as actions from '../../actions/messaging';
@@ -15,6 +16,7 @@ import io from 'socket.io-client';
 const socket = actions.socket;
 import Loader from './loader';
 import SessionWhiteboard from './session-whiteboard';
+import UserReview from './user-review';
 
 class SessionPage extends Component {
   constructor(props) {
@@ -32,10 +34,15 @@ class SessionPage extends Component {
       errorSession : false,
       errorSessionMessage : "",
       streams : {},
-      sessionDate : ""
+      sessionDate : "",
+      sessionObj: '',
+      currentUser : '',
+      time: {},
+      seconds: 1800,
+      showUserReviewModal: false
     };
 
-    this.state = { time: {}, seconds: 1800 };
+    //this.state = { time: {}, seconds: 1800 };
     //this.state = { time: {}, seconds: 310 };
     this.timer = 0;
     this.startTimer = this.startTimer.bind(this);
@@ -73,6 +80,27 @@ class SessionPage extends Component {
       console.log('client side : expert user disconnected '+this.state.time+" : "+this.state.seconds);
       //this.props.ExpertSessionUserDisconnected(this.props.sessionOwnerUsername);
     });
+    
+    var todayDate = new Date();
+    todayDate = todayDate.getDate()+"/"+todayDate.getMonth()+"/"+todayDate.getFullYear();
+    this.state.sessionDate = todayDate ;
+    let timeLeftVar = this.secondsToTime(this.state.seconds);
+    this.state.time = timeLeftVar;
+    var slug = this.props.params.slug;
+
+    axios.get(`${API_URL}/getExpertDetail/${slug}`)
+		  .then(res => {
+        const expert = res.data[0];
+        this.state.firstName = res.data[0].profile.firstName;
+        this.state.lastName = res.data[0].profile.lastName;
+		    this.state.expert = expert;
+		  })
+		  .catch(err => {});
+          
+        // set current user cookie
+        this.state.currentUser = cookie.load('user');
+        
+    
   }
 
   handleFormSubmit(formProps) {
@@ -97,8 +125,13 @@ class SessionPage extends Component {
 
         var connectionCount;
 
-        var session = OT.initSession(tokBoxApikey, this.state.sessionId)
-        .on('streamCreated', function(event) {
+        var session = OT.initSession(tokBoxApikey, this.state.sessionId);
+        
+        this.setState({
+            sessionObj: session
+        });
+        
+        session.on('streamCreated', function(event) {
 
           console.log('streamCreated');
 
@@ -172,24 +205,34 @@ class SessionPage extends Component {
         this.setState({errorSessionMessage : "<div class='alert alert-danger'>Session is not active from Expert end. Please try again later.</div>" });
       }
     });
+    
+    
+    
+    
   }
 
   componentDidMount() {
-    var todayDate = new Date();
-    todayDate = todayDate.getDate()+"/"+todayDate.getMonth()+"/"+todayDate.getFullYear();
-    this.setState({sessionDate : todayDate });
-    let timeLeftVar = this.secondsToTime(this.state.seconds);
-    this.setState({ time: timeLeftVar });
-    var slug = this.props.params.slug;
-
-    axios.get(`${API_URL}/getExpertDetail/${slug}`)
-		  .then(res => {
-        const expert = res.data[0];
-        this.setState({firstName : res.data[0].profile.firstName });
-        this.setState({lastName : res.data[0].profile.lastName });
-		    this.setState({expert});
-		  })
-		  .catch(err => {});
+//    var todayDate = new Date();
+//    todayDate = todayDate.getDate()+"/"+todayDate.getMonth()+"/"+todayDate.getFullYear();
+//    this.setState({sessionDate : todayDate });
+//    let timeLeftVar = this.secondsToTime(this.state.seconds);
+//    this.setState({ time: timeLeftVar });
+//    var slug = this.props.params.slug;
+//
+//    axios.get(`${API_URL}/getExpertDetail/${slug}`)
+//		  .then(res => {
+//        const expert = res.data[0];
+//        this.setState({firstName : res.data[0].profile.firstName });
+//        this.setState({lastName : res.data[0].profile.lastName });
+//		    this.setState({expert});
+//		  })
+//		  .catch(err => {});
+//          
+//        // set current user cookie
+//        this.setState({
+//            currentUser: cookie.load('user')
+//        });  
+          
 	}
 
   getClassName(sender,loggedInUser){
@@ -254,13 +297,43 @@ class SessionPage extends Component {
     );
   }
 
-  disconnect() {
-    //session.disconnect();
+  disconnect(e) {
+    
+    e.preventDefault();
+    this.state.sessionObj.disconnect();
     console.log('publisher: '+publisher);
+    
+    if(this.state.currentUser){
+        if(this.state.currentUser.role == 'User'){
+            //alert('session closed by user');
+            this.setState({
+                showUserReviewModal: true
+            });
+            
+            $('.wrapper').addClass('blur_page');
+        } 
+    } 
+    
+    
     //session.disconnect();
     /*if (this.state.publisher) {
       this.state.session.unpublish(this.state.publisher);
     }*/
+  }
+  
+  onSubmitReview(){
+    var self = this;
+    
+    setTimeout(function(){
+        self.setState({
+            showUserReviewModal: false
+        });
+        browserHistory.push('/');
+        $('.wrapper').removeClass('blur_page');
+    }, 2000);
+    
+    
+    
   }
 
   render() {
@@ -270,7 +343,8 @@ class SessionPage extends Component {
 
     return (
       <div className="session-page">
-        <Loader/>
+        <Loader/> 
+        <UserReview onSubmitReview={ this.onSubmitReview.bind(this) } expertSlug={this.props.params.slug} showUserReviewModal={ this.state.showUserReviewModal } />    
         <div className="container-fluid session-page-container" style={{display: 'none' }}>
           <div className="row">
             <section>

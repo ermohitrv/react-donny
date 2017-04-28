@@ -29,8 +29,9 @@ class HeaderTemplate extends Component {
               </a>
               <ul className="dropdown-menu">
                  <div className="log-arrow-up"></div>
-                 <li><Link href="/mysession-list"><i className="fa fa-desktop"></i> my sessions</Link></li>
-                 { currentUser.role == 'Expert' ?   <li><Link href="/recordings"><i className="fa fa-microphone"></i> Recordings </Link></li> : '' }
+                    { currentUser.role == 'Expert' ?  <li><Link href={"/mysession/"+currentUser.slug}><i className="fa fa-desktop"></i> my session</Link></li> : ''} 
+                  { currentUser.role == 'Expert' ?  <li><Link href="/mysession-list"><i className="fa fa-desktop"></i> sessions history</Link></li> : ''} 
+                  { currentUser.role == 'Expert' ?   <li><Link href="/recordings"><i className="fa fa-microphone"></i> recordings </Link></li> : '' }
                  <li><Link href="/profile"><i className="fa fa-user"></i> profile</Link></li>
                  <li><Link to="/update-profile"><i className="fa fa-suitcase" title="Update Profile"></i> update profile</Link></li>
                  <li><Link to="logout"><i className="fa fa-key" ></i> logout</Link></li>

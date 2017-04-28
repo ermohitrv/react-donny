@@ -454,7 +454,8 @@ class ViewExpert extends Component {
         	(response)=>{
             console.log(JSON.stringify(response));
             if(response.session !== null){
-              if(response.session.stripePaymentStatus == "succeeded"){
+              //if(response.session.stripePaymentStatus == "succeeded"){
+              if(response.status == 1){
                 window.location.href = `${CLIENT_ROOT_URL}/mysession/`+this.props.params.slug;
               }else{
                 this.setState({ modalMessageNotification : "Something went wrong, please contact website admin."});
@@ -680,7 +681,7 @@ class ViewExpert extends Component {
                        </div>
                     </div>
                  </div>
-                 <ExpertReviews/>
+                 <ExpertReviews expertSlug={this.props.params.slug} />
                </div>
             </div>
         </div>

@@ -494,3 +494,7 @@ div#publisherRecordAudio .OT_archiving.OT_edge-bar-item .OT_archiving-light-box 
     transform: scale(1.0);
   }
 }
+
+.review_column span.fa-star-o:before{color:#999;}
+.review_column span.fa-2x{color:goldenrod;}
+.wrapper.blur_page{-webkit-filter: blur(3px);filter:blur(3px);-moz-filter: blur(3px);-ms-filter: blur(3px);}
