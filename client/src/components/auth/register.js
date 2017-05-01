@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import { Field, reduxForm } from 'redux-form';
 import { registerUser, facebookLoginUser } from '../../actions/auth';
 import { API_URL, CLIENT_ROOT_URL, errorHandler } from '../../actions/index';
-import $ from 'jquery';
 var Recaptcha = require('react-recaptcha');
 
 const form = reduxForm({
@@ -29,12 +28,21 @@ class Register extends Component {
     $(document).ready(function(){
       console.log('test');
     });
+    
+    this.state = {
+        recaptcha_value: '',
+    };
+    
   }
 
   // specifying verify callback function
   verifyCallback = function (response) {
     console.log('verifyCallback '+response);
     $('#hiddenRecaptcha').val(response);
+    var recaptcha_value = response;
+    this.setState({
+        recaptcha_value
+    });
   };
 
   componentDidMount(){
@@ -122,7 +130,9 @@ class Register extends Component {
   }
 
   handleFormSubmit(formProps) {
-    this.props.registerUser(formProps);
+    if($('#signup_form').valid()){
+        this.props.registerUser(formProps);
+    }
   }
 
   renderAlert() {
@@ -170,7 +180,7 @@ class Register extends Component {
         </div>
 
         <div className="form-group text-center g-recaptcha-wrapper">
-          <input type="text" class="form-control g-recaptcha" id="hiddenRecaptcha" name="hiddenRecaptcha"  />
+          <input type="text" class="form-control g-recaptcha" id="hiddenRecaptcha" name="hiddenRecaptcha"  value={ this.state.recaptcha_value } />
           <Recaptcha  sitekey="6LeMERsUAAAAACSYqxDZEOOicHM8pG023iDHZiH5"  render="explicit" onloadCallback={callback} verifyCallback={this.verifyCallback.bind(this)} />
         </div>
 

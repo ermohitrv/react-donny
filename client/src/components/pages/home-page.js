@@ -78,7 +78,7 @@ class HomePage extends Component {
                     <div className="col-md-12">
                         <div id="homePage">
                               {this.state.posts.map((post, index) => (
-                                <div key={post.id} className="col-md-3">
+                                <div key={post.id} className={ "col-md-3 "+ ( post.name == 'Music Lessons' ? 'music-lessions-list-wrapper' : '' ) }>
                                   <h4 className="center_h4">
 																		<a href="javascript:void()">{post.name}</a>
 																		<span className="long-dash"></span>

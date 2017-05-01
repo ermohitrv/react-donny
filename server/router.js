@@ -127,6 +127,11 @@ module.exports = function (app) {
   apiRoutes.post('/sendEmailMessageToExpert', ExpertsController.sendEmailMessageToExpert);
   apiRoutes.post('/sendTextMessageToExpert', ExpertsController.sendTextMessageToExpert);
   apiRoutes.post('/createExpert/', ExpertsController.createExpert);
+  
+  apiRoutes.post('/saveUserReview/', ExpertsController.saveUserReview);
+  
+  apiRoutes.get('/getExpertReviews/:expertSlug', ExpertsController.getExpertReviews);
+  
 
   //= ========================
   // Session Routes
@@ -138,13 +143,17 @@ module.exports = function (app) {
   
   // Audio call session route
   apiRoutes.post('/createAudioSession/', AudioSessionController.createAudioSession);
-  apiRoutes.get('/requestForToken/:email', AudioSessionController.requestForToken);
+  apiRoutes.post('/requestForToken', AudioSessionController.requestForToken);
   
   // recording audio call session route
   apiRoutes.post('/start_recording', ArchiveSessionController.start_recording);
   apiRoutes.get('/stop_recording/:expertEmail/:userEmail/:archiveID', ArchiveSessionController.stop_recording);
   apiRoutes.post('/getArchiveSessionAndToken', ArchiveSessionController.getArchiveSessionAndToken);
   apiRoutes.post('/send_recording', ArchiveSessionController.send_recording);
+  
+  apiRoutes.post('/getExpertRecordings', ArchiveSessionController.getExpertRecordings); 
+  apiRoutes.post('/playRecordedAudio', ArchiveSessionController.playRecordedAudio); 
+  apiRoutes.post('/deleteRecordedAudio', ArchiveSessionController.deleteRecordedAudio);
 
   //= ========================
   // Chat Routes

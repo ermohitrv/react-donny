@@ -23,69 +23,79 @@ exports.createVideoSession = function(req, res, next) {
   const expertEmail = req.body.expertEmail;
   const userEmail = req.body.userEmail;
   const sessionOwner = req.body.sessionOwner;
+  
+  var bind = {};
 
   if(sessionOwner === true){
 
     User.findOne({ email : expertEmail, role : 'Expert', enableAccount : true }, (err, existingUser) => {
       if (err) {
-        console.log('err if 1');
-        return next(err);
+        bind.status = 0;
+        bind.message = 'Oops error occured!';
+        bind.error = err;
+        return res.json(bind);
       }
-      //console.log('existingUser: '+existingUser+' ------- end existingUser');
+      if (existingUser) {
+        var date1 = new Date (),
+            expireTime = new Date ( date1 );
+            expireTime.setMinutes ( date1.getMinutes() + 5600 );
 
-      if (existingUser && !err) {
-
-        VideoSession.findOne({  expertEmail : expertEmail, sessionStatus : 'ACTIVE', sessionId : { $not : { $type : 10 }, $exists : true } },function(err, sessionInfo){
-          if (sessionInfo && !err) {
-
-            res.json({ sessionId: sessionInfo.sessionId, token : sessionInfo.sessionExpertToken, err : "" });
-
-          }else{
-
-            var date1 = new Date (),
-              expireTime = new Date ( date1 );
-              expireTime.setMinutes ( date1.getMinutes() + 5600 );
-
-            opentok.createSession(function(err, session) {
-
-                //  Use the role value appropriate for the user:
-                var tokenOptions = {};
-                tokenOptions.role = "publisher";
-                tokenOptions.data = "username="+existingUser.slug;
-                tokenOptions.expireTime = moment(expireTime).unix();  //30 minutes expirty set to token
-
-                // Generate a token.
-                var token = opentok.generateToken(session.sessionId,tokenOptions);
-
-                //addition of new record to table
-                var newConVideo = new VideoSession();
-                newConVideo.sessionId = session.sessionId;
-                newConVideo.sessionExpertToken = token;
-                newConVideo.sessionStatus = "ACTIVE";
-                newConVideo.expertEmail = expertEmail;
-                newConVideo.userEmail = userEmail;
-
-                newConVideo.save(function (err) {
-                    if (err) {
+            
+              if(existingUser.videoSessionId == ''){ // create new video session for expert
+                  opentok.createSession(function(err, session) {
+                
+                    if(err){
                         console.log("error: " + err);
-                        res.json({ err : err, sessionId : "", token : ""});
-                    } else {
-                        console.log("else 1");
-                        res.json({ err : "", sessionId : session.sessionId, token : token});
+                        return res.json({ err : err, sessionId : "", token : ""});
                     }
+
+                    //  Use the role value appropriate for the user:
+                    var tokenOptions = {};
+                    tokenOptions.role = "publisher";
+                    tokenOptions.data = "username="+existingUser.slug;
+                    //tokenOptions.expireTime = moment(expireTime).unix();  //30 minutes expirty set to token
+
+                    existingUser.videoSessionId = session.sessionId;
+                    existingUser.videoSessionAvailability = true;
+                    existingUser.expertSessionAvailability = true;
+
+                    // Generate a token.
+                    var token = opentok.generateToken(session.sessionId,tokenOptions);
+
+                    existingUser.save(function (err) {
+                        if (err) {
+                            return res.json({ err : err, sessionId : "", token : ""});
+                        } else {
+                            return res.json({ err : "", sessionId : session.sessionId, token : token});
+                        }
+                    });
                 });
-            });
+              } else { // use existing video session of expert
+                  // Generate a token.
+                    var tokenOptions = {};
+                    tokenOptions.role = "publisher";
+                    tokenOptions.data = "username="+existingUser.slug;
+                    var token = opentok.generateToken(existingUser.videoSessionId, tokenOptions);
+                    
+                    existingUser.videoSessionAvailability = true;
+                    existingUser.expertSessionAvailability = true;
+                    existingUser.save();
+                    return res.json({ err : "", sessionId : existingUser.videoSessionId, token : token});
+              }
+                
 
-          }
+         
 
-        });
-
+      } else {
+          bind.status = 0;
+          bind.message = 'No expert found';
+          return res.json(bind);
       }
     });
 
   } else {
 
-    VideoSession.findOne({expertEmail : expertEmail, sessionId : { $not : { $type : 10 }, $exists : true } },function(err, sessionInfo){
+    User.findOne({email : expertEmail, videoSessionAvailability: true },function(err, sessionInfo){
       if(!err && sessionInfo ){
 
         var date1 = new Date (),
@@ -98,9 +108,9 @@ exports.createVideoSession = function(req, res, next) {
         tokenOptions.expireTime = moment(expireTime).unix();  //30 minutes expirty set to token
 
         // Generate a token.
-        var token = opentok.generateToken(sessionInfo.sessionId,tokenOptions);
+        var token = opentok.generateToken(sessionInfo.videoSessionId,tokenOptions);
 
-        res.json({ sessionId: sessionInfo.sessionId, token : token, err : "" });
+        res.json({ sessionId: sessionInfo.videoSessionId, token : token, err : "" });
 
       }else{
 

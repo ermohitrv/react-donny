@@ -43,6 +43,7 @@ import AdminDashboard from './components/admin/dashboard';
 import RequireAuth from './components/auth/require_auth';
 
 import MysessionList from './components/dashboard/mysession-list';
+import Recordings from './components/pages/experts-recordings';
 
 export default (
   <Route path="/" component={App}>
@@ -69,6 +70,7 @@ export default (
     <Route path="tokbox/join/:slug" component={TokboxPage} />
 
     <Route path="mysession-list" component={MysessionList} />
+    <Route path="recordings" component={Recordings} />
 
     <Route path="admin" component={RequireAuth(AdminDashboard)} />
 

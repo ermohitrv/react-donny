@@ -18,6 +18,14 @@ const renderField = field => (
     {field.touched && field.error && <div className="error">{field.error}</div>}
   </div>
 );
+
+const renderUrlField = field => (
+  <div>
+    <input type="url" className="form-control" {...field.input} />
+    {field.touched && field.error && <div className="error">{field.error}</div>}
+  </div>
+);
+
 const renderEmailField = field => (
   <div>
     <input type="email"  className="form-control" {...field.input} />
@@ -112,7 +120,26 @@ class CreateExpert extends Component {
            },
            yearsexpertise: {
                required: true
-           }
+           },
+           facebookLink:{
+            required: true,
+            url: true
+           },
+           twitterLink: {
+            required: true,
+            url: true
+           },
+           instagramLink: {
+            required: true,
+            url: true
+           },
+           linkedinLink: {
+            required: true,
+            url: true
+           },
+           snapchatLink: {
+            url: true
+           },
          },
          messages: {
            firstName:{
@@ -182,30 +209,32 @@ class CreateExpert extends Component {
 
   handleFormSubmit(formProps) {
     console.log('formProps: '+JSON.stringify(formProps));
-
-    this.props.createExpert(formProps).then(
-      (response)=>{
-        if(response.error){
-            this.setState({responseMsg : "<div class='alert alert-danger text-center'>"+response.error+"</div>"});
+    
+    if($('#create_expert').valid()){
+       this.props.createExpert(formProps).then(
+        (response)=>{
+          if(response.error){
+              this.setState({responseMsg : "<div class='alert alert-danger text-center'>"+response.error+"</div>"});
+              //this.clearInput();
+              $(".form-control").val("");
+              $( 'form' ).each(function(){
+                  this.reset();
+              });
+          }else{
+            this.setState({responseMsg : "<div class='alert alert-success text-center'>"+response.message+"</div>"});
             //this.clearInput();
             $(".form-control").val("");
             $( 'form' ).each(function(){
                 this.reset();
             });
-        }else{
-          this.setState({responseMsg : "<div class='alert alert-success text-center'>"+response.message+"</div>"});
-          //this.clearInput();
-          $(".form-control").val("");
-          $( 'form' ).each(function(){
-              this.reset();
-          });
+          }
+        },
+                (err) => err.response.json().then(({errors})=> {
+                    this.setState({responseMsg : "<div class='alert alert-danger text-center'>"+errors+"</div>"});
+                })
+            )  
         }
-      },
-      (err) => err.response.json().then(({errors})=> {
-        this.setState({responseMsg : "<div class='alert alert-danger text-center'>"+errors+"</div>"});
-      })
-    )
-  }
+    }
 
   render() {
 
@@ -284,7 +313,41 @@ class CreateExpert extends Component {
                         <label>Years of Expertise</label>
                         <Field name="yearsexpertise" component={renderFieldyearsexpertise} type="select" />
                       </div>
+              
                     </div>
+            
+                    <div className="row form-group">
+                    
+                        <div className="col-md-4 form-group">
+                        <label>Facebook</label>
+                        <Field name="facebookLink" component={renderUrlField} type="url"/>
+                      </div>
+              
+                      <div className="col-md-4 form-group">
+                        <label>Twitter</label>
+                        <Field name="twitterLink" component={renderUrlField} type="url"/>
+                      </div>
+              
+                      <div className="col-md-4 form-group">
+                        <label>Instagram</label>
+                        <Field name="instagramLink" component={renderUrlField} type="url"/>
+                      </div>
+              
+                    </div>
+            
+                    <div className="row form-group">
+                        <div className="col-md-4 form-group">
+                        <label>Linkedin</label>
+                        <Field name="linkedinLink" component={renderUrlField} type="url"/>
+                      </div>
+              
+                      <div className="col-md-4 form-group">
+                        <label>snapchat</label>
+                        <Field name="snapchatLink" component={renderUrlField} type="url"/>
+                      </div>
+                    </div>
+            
+            
                     <div className="row form-group">
                       <div className="col-md-12">
                         <button type="submit" className="btn btn-primary">Submit</button>

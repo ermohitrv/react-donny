@@ -5,6 +5,7 @@ import { Link } from 'react-router';
 import { API_URL, CLIENT_ROOT_URL, errorHandler } from '../../actions/index';
 import { loginUser, facebookLoginUser } from '../../actions/auth';
 var Recaptcha = require('react-recaptcha');
+import cookie from 'react-cookie';
 
 const form = reduxForm({
   form: 'login',
@@ -16,22 +17,29 @@ var callback = function () {
 };
 
 class Login extends Component {
-  constructor(props){
-    super(props);
-    this.state={
-      SuccessMessage:""
-    }
-  }
+
+    
+ constructor(props, context) {
+        super(props, context);
+        this.state = {
+            recaptcha_value: '',
+        };
+    }   
+    
+    
+
   handleFormSubmit(formProps) {
     try{
-      this.props.loginUser(formProps).then(
-        (response)=>{
-          console.log('response: '+JSON.stringify(response));
-        },
-        (err) => err.response.json().then(({errors})=> {
-          console.log('err: '+JSON.stringify(err));
-        })
-      )
+      if($('#login_form').valid()){
+        this.props.loginUser(formProps).then(
+         (response)=>{
+           console.log('response: '+JSON.stringify(response));
+         },
+         (err) => err.response.json().then(({errors})=> {
+           console.log('err: '+JSON.stringify(err));
+         })
+       )
+      }
     }catch(e){}
   }
 
@@ -39,13 +47,17 @@ class Login extends Component {
   verifyCallback = function (response) {
     console.log('verifyCallback '+response);
     $('#hiddenRecaptcha').val(response);
+    var recaptcha_value = response;
+    this.setState({
+        recaptcha_value
+    });
   };
 
   componentDidMount(){
     $(document).ready(function(){
       jQuery("#login_form").validate({
         rules: {
-             email: { required: true,email: true },
+             email: { required: true, email: true },
              password: { required: true },
              hiddenRecaptcha: { required: true }
         },
@@ -56,10 +68,22 @@ class Login extends Component {
         }
       });
     });
+    
+    console.log('*** requiredLogin ***'+ cookie.load('requiredLogin'));
   }
 
   handleFacebookClick() {
     window.open(`${API_URL}/auth/facebook`, 'sharer', 'toolbar=0,top=50,status=0,width=748,height=525');
+  }
+  
+  renderRequiredLogin_for_session(){
+      cookie.remove('requiredLogin_for_session', { path: '/' });
+      return (
+            <div className="alert alert-warning">
+                <strong>Please login to start session </strong>
+                <a href="#" className="close" data-dismiss="alert" aria-label="close" title="close">×</a>
+            </div>
+        );
   }
 
   render() {
@@ -67,6 +91,9 @@ class Login extends Component {
     return (
         <div className="col-sm-6 col-sm-offset-3">
           <div className="page-title text-center"><h2>Login</h2></div>
+          
+              { cookie.load('requiredLogin_for_session') ? this.renderRequiredLogin_for_session() : '' } 
+  
           <p className="text-center">Login to access awesome features.</p>
           <form id="login_form" onSubmit={handleSubmit(this.handleFormSubmit.bind(this))}>
             <div className="form-group">
@@ -78,7 +105,8 @@ class Login extends Component {
               <Field name="password" className="form-control" required component="input" type="password" />
             </div>
             <div className="form-group text-center g-recaptcha-wrapper">
-              <Field id="hiddenRecaptcha" name="hiddenRecaptcha" className="g-recaptcha" required component="input" type="text" />
+            {/* <Field id="hiddenRecaptcha" name="hiddenRecaptcha" className="g-recaptcha" required component="input" type="text" /> */}
+                <input type="text" name="hiddenRecaptcha" value={ this.state.recaptcha_value } id="hiddenRecaptcha" class="g-recaptcha error" required="" />
               <Recaptcha sitekey="6LeMERsUAAAAACSYqxDZEOOicHM8pG023iDHZiH5" render="explicit" onloadCallback={callback} verifyCallback={this.verifyCallback.bind(this)} />
             </div>
             <div className="form-group text-center">

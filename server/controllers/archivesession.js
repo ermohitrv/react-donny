@@ -1,4 +1,4 @@
-const AudioSession = require('../models/audiosession');
+const ArchiveSession = require('../models/archivesession');
 const config = require('../config/main');
 const User = require('../models/user');
 var OpenTok = require('../lib_opentok/opentok');
@@ -112,8 +112,10 @@ exports.send_recording = function (req, res, next) {
                     var html = 'Hello , <br> You have new voice message from email: '+userEmail;
                     html += '<p>Clicke here to listen : </p>'+archive.url;
 
-                    //expertEmail = 'avadhesh_bhatt@rvtechnologies.co.in';
-                    expertEmail = 'mohit@rvtechnologies.co.in';
+
+                    expertEmail = 'avadhesh_bhatt@rvtechnologies.co.in';
+                    //expertEmail = 'mohit@rvtechnologies.co.in';
+
                     var mailOptions = {
                         from   : "Donnys list <no-reply@donnyslist.com>",
                         to     : expertEmail,
@@ -131,6 +133,25 @@ exports.send_recording = function (req, res, next) {
 
                     });
 
+                    
+                    /**** Save archive information to database ****/
+                    
+                    var newArchiveSession = new ArchiveSession();
+                    newArchiveSession.archiveId = archive.id;
+                    newArchiveSession.archive_name = archive.name;
+                    newArchiveSession.sessionId = archive.sessionId;
+                    newArchiveSession.createdAt = archive.createdAt;
+                    newArchiveSession.size = archive.size;
+                    newArchiveSession.duration = archive.duration;
+                    newArchiveSession.updatedAt = archive.updatedAt;
+                    newArchiveSession.archiveUrl = archive.url;
+                    newArchiveSession.expertEmail = expertEmail;
+                    newArchiveSession.userEmail = userEmail;
+                    newArchiveSession.status = archive.status;
+                    
+                    newArchiveSession.save();
+
+
               }
               return res.json(bind);
             });
@@ -142,3 +163,110 @@ exports.send_recording = function (req, res, next) {
 
     });
 };
+
+
+exports.getExpertRecordings = function (req, res, next) {
+    var expertEmail = req.body.expertEmail;
+    var bind = {};
+    
+    ArchiveSession.aggregate([
+        {
+            $match : { expertEmail: expertEmail },
+        },
+        
+        {
+            $lookup:{
+                from: 'users',
+                localField: 'expertEmail',
+                foreignField: 'email',
+                as: 'user'
+                
+            }
+        },
+        
+        {
+            $unwind: '$user'
+        },
+        
+        {
+            $project: { 
+                _id: 1,
+                archiveId: 1,
+                archiveUrl: 1,
+                archive_name: 1,
+                duration: 1,
+                size: 1,
+                updatedAt:1,
+                senderName: { $concat: [ '$user.profile.firstName', ' ', '$user.profile.lastName' ] }
+
+            
+            }
+        },
+        
+        {
+            $sort: { _id: -1 }
+        }
+        
+        
+    ], function(err, recordings){
+        if(err){
+            bind['status'] = 0;
+            bind['message'] = err;
+        } else {
+            bind['status'] = 1;
+            bind['recordings'] = recordings;
+        }
+        return res.json(bind);
+    });
+    
+} 
+
+exports.playRecordedAudio = function (req, res, next) {
+    var archiveId = req.body.archiveId;
+    var bind = {};
+    
+    opentok.getArchive(archiveId, function(err, archive) {
+        if (err){ 
+            bind['status'] = 0;
+            bind['message'] = 'Could not get archive '+archiveId+'. error='+err.message;
+        } else {
+            bind['status'] = 1;
+            bind['archive_url'] = archive.url;
+        }
+        
+        res.json(bind);
+    });
+    
+} 
+
+exports.deleteRecordedAudio = function (req, res, next) {
+    var archiveId = req.body.archiveId;
+    var id = req.body.id;
+    var bind = {};
+    
+    ArchiveSession.remove({ _id: id }, function(err) {
+        if (!err) {
+            bind['status'] = 1;
+            bind['message'] = 'Recording was deleted successfully!';
+            
+            opentok.deleteArchive(archiveId, function(err) {
+                if (err){
+                    bind['error'] = 'Could not stop archive '+archiveId+'. error='+err.message;
+                } 
+                return res.json(bind);
+            });
+                
+        }
+        else {
+            bind['status'] = 0;
+            bind['message'] = 'Oops! error occur while deleting recording';
+            
+            return res.json(bind);
+                
+        }
+    });
+    
+}
+
+
+

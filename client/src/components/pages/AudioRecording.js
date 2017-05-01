@@ -7,7 +7,7 @@ import * as actions from '../../actions/messaging';
 import $ from 'jquery';
 import { startRecording, getArchiveSessionAndToken, stopRecording, sendRecording } from '../../actions/expert';
 import axios from 'axios';
-import { API_URL, CLIENT_ROOT_URL, errorHandler } from '../../actions/index';
+import { API_URL, CLIENT_ROOT_URL, errorHandler, tokBoxApikey } from '../../actions/index';
 
 const socket = actions.socket;
 const currentUser = cookie.load('user');
@@ -33,10 +33,14 @@ class AudioRecording extends Component {
             showRecordingPopup: false,
             pubOptions: {width:150, height:150, insertMode: 'append'},
             publisher: '',
-            sessionObj: ''
-                    
-                    
+            sessionObj: '',
+            totalSeconds: 0,
+            refreshIntervalId: '',
+            recording_audio_call_minutes: '00',
+            recording_audio_call_seconds: '00'
         };
+        
+        this.setTime = this.setTime.bind(this);
     }
    
     componentDidMount() {
@@ -51,6 +55,39 @@ class AudioRecording extends Component {
               error: err
             });
         });
+        
+    }
+    
+    setTime() {
+        var totalSeconds = this.state.totalSeconds;
+        ++totalSeconds;
+        
+        var secondsLabel = this.pad(totalSeconds%60);
+        var minutesLabel = this.pad(parseInt(totalSeconds/60));
+        var recording_audio_call_seconds = secondsLabel;
+        var recording_audio_call_minutes = minutesLabel;
+        //$('#recording_audio_call_seconds').html(secondsLabel);
+        //$('#recording_audio_call_minutes').html(minutesLabel);
+        
+        this.setState({
+            totalSeconds,
+            recording_audio_call_minutes,
+            recording_audio_call_seconds
+        });
+        
+        recording_audio_call_minutes 
+    }
+    
+    pad(val) {
+        var valString = val + "";
+        if(valString.length < 2)
+        {
+            return "0" + valString;
+        }
+        else
+        {
+            return valString;
+        }
     }
     
     
@@ -66,6 +103,11 @@ class AudioRecording extends Component {
             this.setState({
                 archiveID: response.archive.id,
                 startAudioRecording: true
+            });
+            
+            var refreshIntervalId = setInterval(this.setTime, 1000);
+            this.setState({
+                refreshIntervalId
             });
             
               
@@ -93,6 +135,15 @@ class AudioRecording extends Component {
         this.props.stopRecording({expertEmail, userEmail, archiveID}).then(
             (response)=>{
                 console.log('**** stopRecording success ****'+ JSON.stringify(response) );
+        
+                var refreshIntervalId = this.state.refreshIntervalId;
+                clearInterval(refreshIntervalId);
+                this.setState({
+                    totalSeconds: 0,
+                    refreshIntervalId: '',
+                    recording_audio_call_minutes: '00',
+                    recording_audio_call_seconds: '00'
+                });
             },
             (err) => err.response.json().then(({errors})=> {
                 console.log('**** stopRecording error ****'+ JSON.stringify(errors) );
@@ -113,6 +164,10 @@ class AudioRecording extends Component {
     var session = this.state.sessionObj;
     
     if(mode == 'open'){
+    this.setState({
+        loader: true,
+        showRecordingPopup: true
+    });
     this.props.getArchiveSessionAndToken({ expertEmail, userEmail, archiveSessionId }).then(
       (response) =>{
         const archiveSessionId = response.archiveSessionId;
@@ -123,7 +178,7 @@ class AudioRecording extends Component {
             //showRecordingPopup: true
         });
         
-        session = OT.initSession('45801242', archiveSessionId);
+        session = OT.initSession(tokBoxApikey, archiveSessionId);
         
         this.setState({
             sessionObj: session
@@ -138,7 +193,8 @@ class AudioRecording extends Component {
                 publisher.publishVideo(false);
                 
                 self.setState({
-                    showRecordingPopup: true,
+                    //showRecordingPopup: true,
+                    loader: false,
                     publisher: publisher
                 });
                 
@@ -164,8 +220,8 @@ class AudioRecording extends Component {
                 //session.disconnect();
                 //session.forceDisconnect(self.state.connectionId);
                 
-                const expertEmail = self.state.expertEmail;
-                const userEmail = self.state.userEmail;
+                var expertEmail = self.state.expertEmail;
+                var userEmail = self.state.currentUser.email;
                 var archiveID = event.id;
                 
                 
@@ -182,7 +238,7 @@ class AudioRecording extends Component {
                             console.log('**** sendRecording error ****'+ JSON.stringify(errors) );
                         })
                     )
-                }, 8000);
+                }, 10000);
                 
                 
                 
@@ -216,11 +272,22 @@ class AudioRecording extends Component {
      
    
        return (
-        <div className={ "record-audio-call-wrapper " + (this.state.showRecordingPopup ? 'show' : '') }>
-            <Panel header={ "Record Audio Calling" }  bsStyle="primary" >
-                <div onClick={ this.audioRecordingPopup.bind(this, 'close') } className="close">x</div>
-                <div id="publisherRecordAudio"></div>
-                { !this.state.startAudioRecording ? <Link title="Start Audio Recording" onClick={ this.startAudioRecording.bind(this) } className="start-audio-recording btn btn-success"> Start </Link> :  <Link title="Stop Audio Recording" onClick={ this.stopAudioRecording.bind(this) } className="stop-audio-recording btn btn-danger"> Stop </Link> } 
+        <div className={ "record-audio-call-wrapper recoding_call_con " + (this.state.showRecordingPopup ? 'show' : '') }>
+            <Panel header={ "Record Audio" }  bsStyle="primary" >
+                
+                <div style={  this.state.loader ? { display: 'block'  } : { display: 'none' } } className="loader-wrapper">
+                    { this.renderLoading() }
+                </div>
+                
+                <div style={  !this.state.loader ? { display: 'block'  } : { display: 'none' } } className="record-audio-wrapper">
+                    <div onClick={ this.audioRecordingPopup.bind(this, 'close') } className="close">x</div>
+                    <div id="publisherRecordAudio"></div>
+                        <div className="recording_dd_con">
+                          <div className="recording_timing"><label id="recording_audio_call_minutes">{ this.state.recording_audio_call_minutes }</label>:<label id="recording_audio_call_seconds">{ this.state.recording_audio_call_seconds }</label></div>
+                          { !this.state.startAudioRecording ? <Link title="Start Audio Recording" onClick={ this.startAudioRecording.bind(this) } className="start-audio-recording"> <span className="recording_start"></span> </Link> :  <Link title="Stop Audio Recording" onClick={ this.stopAudioRecording.bind(this) } className="stop-audio-recording"> <span className="recording_stop"></span> </Link> } 
+                        </div>
+                </div>
+                
             </Panel>
         </div>
     );

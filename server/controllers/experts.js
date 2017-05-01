@@ -1,7 +1,9 @@
 const Experts = require('../models/experts');
 const ExpertsSubcategories = require('../models/expertssubcategories');
 const User = require('../models/user');
+const userReview = require('../models/userreview');
 var nodemailer = require("nodemailer");
+var config = require('../config/main');
 
 //= =======================================
 // Experts Routes
@@ -177,6 +179,13 @@ exports.createExpert = function(req, res, next) {
   const expertRating = req.body.expertRating;
   const expertFocusExpertise = req.body.expertFocusExpertise;
   const yearsexpertise = req.body.yearsexpertise;
+  
+  const facebookURL = req.body.facebookLink;
+  const twitterURL = req.body.twitterLink;
+  const instagramURL = req.body.instagramLink;
+  const linkedinURL = req.body.linkedinLink;
+  const snapchatURL = req.body.snapchatLink ? req.body.snapchatLink : '';
+  
 
   // Return error if no email provided
   if (!email) {
@@ -215,7 +224,12 @@ exports.createExpert = function(req, res, next) {
       expertCategories,
       expertRating,
       expertFocusExpertise,
-      yearsexpertise
+      yearsexpertise,
+      facebookURL,
+      twitterURL,
+      instagramURL,
+      linkedinURL,
+      snapchatURL
     });
 
     user.save((err, user) => {
@@ -289,3 +303,99 @@ exports.getExpertDetail = function(req, res, next) {
     }
   });*/
 };
+
+exports.saveUserReview = function(req, res, next){
+    var bind = {};
+    var rating = req.body.rating;
+    var review = req.body.review;
+    var title = req.body.title;
+    var expertEmail = req.body.expertEmail;
+    var expertFullName = req.body.expertFullName;
+    var userEmail = req.body.userEmail;
+    var userFullName = req.body.userFullName;
+    var expertSlug = req.body.expertSlug;
+    
+    
+    var newUserReview = new userReview();
+    newUserReview.rating = rating;
+    newUserReview.review = review;
+    newUserReview.title = title;
+    newUserReview.expertEmail = expertEmail;
+    newUserReview.expertFullName = expertFullName;
+    newUserReview.userEmail = userEmail;
+    newUserReview.userFullName = userFullName;
+    newUserReview.expertSlug = expertSlug;
+    
+    newUserReview.save(function(error){
+        if(error){
+            bind.status = 0;
+            bind.message = 'Oops! error occured while saving user review';
+            bind.error    = error;
+        } else {
+            bind.status = 1;
+            bind.message = 'User review was saved successfully';
+            
+            // create reusable transport method (opens pool of SMTP connections)
+            var smtpTransport = nodemailer.createTransport("SMTP",{
+                service: "Gmail",
+                auth: {
+                    user: config.gmailEmail,
+                    pass: config.gmailPassword
+                }
+            });
+            
+            
+            /* email for expert */
+            
+            var html = 'Hello <strong>'+allTitleCase(expertFullName)+'</strong>, <br> <strong>'+ allTitleCase(userFullName) + '</strong> reviewed on your session.';
+            html += '<p>Following is user information:</p>';
+            html += '<p>Email : '+userEmail+'</p>';
+            html += '<p>Title : '+title+'</p>';
+            html += '<p>Review : '+review+'</p>';
+            html += '<p>Rating : '+rating+'</p>';
+            
+             var mailOptions = {
+                from   : "Donnys list <no-reply@donnyslist.com>",
+                to     : expertEmail,
+                subject: "Donnys List: User Review",
+                html   : html
+            };
+            
+            smtpTransport.sendMail(mailOptions, function(error, response){
+            });
+            
+            
+        }
+        
+        return res.json(bind);
+    });
+    
+    
+}
+
+exports.getExpertReviews = function(req, res, next){
+    var bind = {};
+    var expertSlug = req.params.expertSlug;
+    userReview.find({ expertSlug }, function(err, reviews){
+        if(err){
+            bind.status = 0;
+            bind.message = 'Oops! error occured while fetching user reviews';
+            bind.error = err;
+        } else if(reviews){
+            bind.status = 1;
+            bind.reviews = reviews;
+        } else {
+            bind.status = 0;
+            bind.message = 'No reviews Found';
+        }
+        
+        return res.json(bind);
+    }).sort({ _id: -1 });
+    
+}
+
+function allTitleCase(inStr) {
+    return inStr.replace(/\w\S*/g, function(tStr) { return tStr.charAt(0).toUpperCase() + tStr.substr(1).toLowerCase(); });
+} 
+
+

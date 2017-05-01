@@ -19,6 +19,7 @@ export function loginUser({ email, password }) {
                 console.log("&&^&&^&^*^&*^&^*&")
         cookie.save('token', response.data.token, { path: '/' });
         cookie.save('user', response.data.user, { path: '/' });
+        
         window.location.href = `${CLIENT_ROOT_URL}/dashboard`;
         dispatch({ type: AUTH_USER });
       })

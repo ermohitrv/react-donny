@@ -14,6 +14,16 @@ var callback = function () {
 };
 
 class ForgotPassword extends Component {
+    
+  constructor(props, context) {
+    super(props, context);
+    
+    this.state = {
+        recaptcha_value: '',
+    };
+    
+  }  
+    
   static contextTypes = {
     router: React.PropTypes.object,
   }
@@ -22,6 +32,10 @@ class ForgotPassword extends Component {
   verifyCallback = function (response) {
     console.log('verifyCallback '+response);
     $('#hiddenRecaptcha').val(response);
+    var recaptcha_value = response;
+    this.setState({
+        recaptcha_value
+    });
   };
 
   componentDidMount(){
@@ -35,7 +49,7 @@ class ForgotPassword extends Component {
              email: { required: "Please enter this field" },
              hiddenRecaptcha:{ required: "Please enter this field" }
         },
-        submitHandler: function(form) { form.submit(); }
+        //submitHandler: function(form) { form.submit(); }
       });
     });
   }
@@ -53,7 +67,9 @@ class ForgotPassword extends Component {
   }
 
   handleFormSubmit(formProps) {
-    this.props.getForgotPasswordToken(formProps);
+    if($('#forgot_form').valid()){
+     this.props.getForgotPasswordToken(formProps);   
+    }
   }
 
   renderAlert() {
@@ -81,7 +97,7 @@ class ForgotPassword extends Component {
         </div>
         <div className="form-group text-center">
           <Recaptcha sitekey="6LeMERsUAAAAACSYqxDZEOOicHM8pG023iDHZiH5"  render="explicit" onloadCallback={callback} verifyCallback={this.verifyCallback.bind(this)} />
-          <input type="text" class="form-control g-recaptcha" id="hiddenRecaptcha" name="hiddenRecaptcha"  />
+          <div><input type="text" class="form-control g-recaptcha" id="hiddenRecaptcha" name="hiddenRecaptcha"  value={this.state.recaptcha_value} /></div>
         </div>
         <div className="form-group text-center">
           <button type="submit" className="btn btn-primary">Reset Password</button>

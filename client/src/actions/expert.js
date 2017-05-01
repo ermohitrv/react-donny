@@ -55,9 +55,9 @@ export function sendTextMessage({ text_email, text_message, text_expert_email}) 
 //= ===============================
 // create Expert actions
 //= ===============================
-export function createExpert({ firstName, lastName, email, password, userBio, expertContact, expertRates, expertCategories, expertRating, expertFocusExpertise, yearsexpertise }) {
+export function createExpert({ firstName, lastName, email, password, userBio, expertContact, expertRates, expertCategories, expertRating, expertFocusExpertise, yearsexpertise, facebookLink, twitterLink, instagramLink, linkedinLink, snapchatLink }) {
   return function (dispatch) {
-    return axios.post(`${API_URL}/createExpert`, { firstName, lastName, email, password, expertContact, userBio, expertRates, expertCategories, expertRating, expertFocusExpertise, yearsexpertise })
+    return axios.post(`${API_URL}/createExpert`, { firstName, lastName, email, password, expertContact, userBio, expertRates, expertCategories, expertRating, expertFocusExpertise, yearsexpertise, facebookLink, twitterLink, instagramLink, linkedinLink, snapchatLink })
     .then((response) => {
       return response.data;
       console.log('response: '+JSON.stringify(response));
@@ -80,7 +80,7 @@ export function checkBeforeSessionStart({ expertEmail, userEmail }) {
   console.log('expertEmail: '+expertEmail);
   console.log('userEmail: '+userEmail);
   return function (dispatch) {
-    return axios.post(`${API_URL}/videosession/check-before-session-start`, { userEmail })
+    return axios.post(`${API_URL}/videosession/check-before-session-start`, { expertEmail, userEmail })
     .then((response) => {
       return response.data;
     })
@@ -150,9 +150,9 @@ export function isLoggedIn() {
   };
 }
 
-export function audioCallTokenRequest({ email }) {
+export function audioCallTokenRequest({ email, newConAudioId }) {
   return function (dispatch) {
-    return axios.get(`${API_URL}/requestForToken/${email}`)
+    return axios.post(`${API_URL}/requestForToken`, { email, newConAudioId })
     .then((response) => {
       return response.data;
         //return {email};
@@ -215,6 +215,72 @@ export function getArchiveSessionAndToken({ expertEmail, userEmail, archiveSessi
         .then((response) => {
           return response.data;
             //return {email};
+        })
+        .catch((error) => {
+          console.log('error: '+error);
+          errorHandler(dispatch, error.response, AUTH_ERROR);
+        });
+    };
+}
+
+export function getExpertRecordings({ expertEmail }){
+    return function (dispatch) {
+        return axios.post(`${API_URL}/getExpertRecordings`, { expertEmail })
+        .then((response) => {
+          return response.data;
+            //return {email};
+        })
+        .catch((error) => {
+          console.log('error: '+error);
+          errorHandler(dispatch, error.response, AUTH_ERROR);
+        });
+    };
+}
+
+export function playRecordedAudio({ archiveId }){
+    return function (dispatch) {
+        return axios.post(`${API_URL}/playRecordedAudio`, { archiveId })
+        .then((response) => {
+          return response.data;
+        })
+        .catch((error) => {
+          console.log('error: '+error);
+          errorHandler(dispatch, error.response, AUTH_ERROR);
+        });
+    };
+} 
+
+export function deleteRecordedAudio({ archiveId, id }){
+    return function (dispatch) {
+        return axios.post(`${API_URL}/deleteRecordedAudio`, { archiveId, id })
+        .then((response) => {
+          return response.data;
+        })
+        .catch((error) => {
+          console.log('error: '+error);
+          errorHandler(dispatch, error.response, AUTH_ERROR);
+        });
+    };
+}
+
+export function saveUserReview({ rating, review, title, expertEmail, expertFullName, userEmail, userFullName, expertSlug }){
+    return function (dispatch) {
+        return axios.post(`${API_URL}/saveUserReview`, { rating, review, title, expertEmail, expertFullName, userEmail, userFullName, expertSlug })
+        .then((response) => {
+          return response.data;
+        })
+        .catch((error) => {
+          console.log('error: '+error);
+          errorHandler(dispatch, error.response, AUTH_ERROR);
+        });
+    };
+}
+
+export function getExpertReviews( { expertSlug } ){
+    return function (dispatch) {
+        return axios.get(`${API_URL}/getExpertReviews/${ expertSlug }` )
+        .then((response) => {
+          return response.data;
         })
         .catch((error) => {
           console.log('error: '+error);
