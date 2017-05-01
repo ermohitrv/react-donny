@@ -23,7 +23,7 @@ function handleResponse(response){
 
 }
 export function getUsersList(){
-	console.log("Teacher Posting DATA  to student profile   ")
+	// console.log("Teacher Posting DATA  to student profile   ")
 	return dispatch =>{
 		return fetch("http://localhost:3000/api/getUsersList",{
 			method: 'get',
@@ -32,17 +32,51 @@ export function getUsersList(){
 // 				 "headers": { Authorization: cookie.load('token') },
 			}
 		}).then(function(res){
+			// console.log("%%%%%%%%%%%%")
+			var x = res.json()
+// console.log(x)
+return x
+
+		}).then(function(res){/*console.log(res);*/ return res})
+		//}).then(handleResponse).then(data=>dispatch(getschool(data)));;
+	}
+}
+export function BanMe(data){
+	// console.log("HIIIII" +data)
+	return dispatch =>{
+		return fetch("http://localhost:3000/api/BanHim", {
+    method: 'POST',
+    headers: {'Content-Type':'application/x-www-form-urlencoded'}, // this line is important, if this content-type is not set it wont work
+    body: 'id='+data
+}).then(function(res){
+			// console.log("%%%%%%%%%%%%")
+			var x = res.json()
+			// console.log(x)
+			return x
+
+		}).then(function(res){/*console.log(res);*/ return res})
+		//}).then(handleResponse).then(data=>dispatch(getschool(data)));;
+	}
+
+}
+export function UnBanMe(data){
+	console.log("HIIIII" +data)
+	return dispatch =>{
+		return fetch("http://localhost:3000/api/UnBanHim", {
+    method: 'POST',
+    headers: {'Content-Type':'application/x-www-form-urlencoded'}, // this line is important, if this content-type is not set it wont work
+    body: 'id='+data
+}).then(function(res){
 			console.log("%%%%%%%%%%%%")
 			var x = res.json()
-console.log(x)
-return x
+			console.log(x)
+			return x
 
 		}).then(function(res){console.log(res); return res})
 		//}).then(handleResponse).then(data=>dispatch(getschool(data)));;
 	}
+
 }
-
-
 // export function getUsersList() {
 //   console.log("getUsersList")
 //   console.log({API_URL})

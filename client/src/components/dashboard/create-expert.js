@@ -7,6 +7,8 @@ import { protectedTest } from '../../actions/auth';
 import { createExpert } from '../../actions/expert';
 import ReactDOM from 'react-dom';
 
+import SidebarMenuAdmin from './sidebar-admin';
+
 const form = reduxForm({
   form: 'register'
 });
@@ -156,22 +158,25 @@ class CreateExpert extends Component {
   }
 
   adminMenu() {
+    // return (
+    //   <ul className="nav nav-sidebar" id="menu">
+    //       <li>
+    //           <a href="javascript:void(0)" data-target="#item1" data-toggle="collapse"><i className="fa fa-list"></i> <span className="collapse in hidden-xs">Users Management <span className="caret"></span></span></a>
+    //           <ul className="nav nav-stacked collapse" id="item1">
+    //               <li><Link to="#">List Users</Link></li>
+    //               <li><Link to="/dashboard/create-expert">Create Expert</Link></li>
+    //           </ul>
+    //       </li>
+    //       <li>
+    //           <a href="javascript:void(0)" data-target="#item2" data-toggle="collapse"><i className="fa fa-list"></i> <span className="collapse in hidden-xs">Session Management <span className="caret"></span></span></a>
+    //           <ul className="nav nav-stacked collapse" id="item2">
+    //               <li><Link to="#">List Active Sessions</Link></li>
+    //           </ul>
+    //       </li>
+    //   </ul>
+    // );
     return (
-      <ul className="nav nav-sidebar" id="menu">
-          <li>
-              <a href="javascript:void(0)" data-target="#item1" data-toggle="collapse"><i className="fa fa-list"></i> <span className="collapse in hidden-xs">Users Management <span className="caret"></span></span></a>
-              <ul className="nav nav-stacked collapse" id="item1">
-                  <li><Link to="#">List Users</Link></li>
-                  <li><Link to="/dashboard/create-expert">Create Expert</Link></li>
-              </ul>
-          </li>
-          <li>
-              <a href="javascript:void(0)" data-target="#item2" data-toggle="collapse"><i className="fa fa-list"></i> <span className="collapse in hidden-xs">Session Management <span className="caret"></span></span></a>
-              <ul className="nav nav-stacked collapse" id="item2">
-                  <li><Link to="#">List Active Sessions</Link></li>
-              </ul>
-          </li>
-      </ul>
+      <SidebarMenuAdmin/>
     );
   }
 
@@ -213,8 +218,9 @@ class CreateExpert extends Component {
             {this.breadcrumb()}
             <div className="wrapper-sidebar-page">
               <div className="row row-offcanvas row-offcanvas-left">
+              {this.isRole('Admin', this.adminMenu())}
                   <div className="column col-sm-3 col-xs-1 sidebar-offcanvas" id="sidebar">
-                  {this.isRole('Admin', this.adminMenu())}
+                  
                   </div>
                   <div className="column col-sm-9 col-xs-11" id="main">
                   <div id="pageTitle">

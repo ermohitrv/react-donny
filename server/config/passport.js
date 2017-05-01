@@ -180,7 +180,19 @@ const jwtLogin = new JwtStrategy(jwtOptions, (payload, done) => {
     if (err) { return done(err, false); }
 
     if (user) {
-      done(null, user);
+      console.log("***********")
+      console.log(JSON.stringify(user))
+      console.log("***********")
+      console.log("***********")
+      console.log("***********"+user.enableAccount)
+      if(user.enableAccount && user.enableAccount!==null && user.enableAccount!==undefined && user.enableAccount===true)
+      {
+        done(null, user)
+      }
+      else{
+        done(null, false,{message:"Sorry the account is banned"});
+      }
+    
     } else {
       done(null, false);
     }

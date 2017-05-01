@@ -10,7 +10,9 @@ const CommunicationController = require('./controllers/communication');
 const StripeController = require('./controllers/stripe');
 const VideoSessionStripeController = require('./controllers/video-session-stripe');
 
-const AdminsUsersList = require('./controllers/getlist')
+// const AdminsUsersList = require('./controllers/getlist')
+
+const AdminController       = require('./controllers/theAdminController')
 
 var User = require('./models/user')
 
@@ -220,20 +222,26 @@ module.exports = function (app) {
   apiRoutes.use('/communication', communicationRoutes);
 
 
-  apiRoutes.get('/getUsersList', function(req, res) {
-    console.log("this")
-      User.find({role:"User"}, (err, users) => {
-        if (err) {
-          res.status(400).json({ error: 'No user could be found for this ID.' });
-          return next(err);
-        }
+  apiRoutes.get('/getUsersList', AdminController.theAdminsUserList);
+  apiRoutes.post('/BanHim', AdminController.AdminToBanOrUnBanUser)
 
-        // const userToReturn = setUserInfo(user);
-
-        return res.status(200).json({ user: users });
-      });
-  });
-
+  // apiRoutes.post('/UnBanHim', function(req, res){
+  //   console.log("********************")
+  //   console.log(JSON.stringify(req.body))
+  //   // console.log(JSON.stringify(req.body.data))
+  //     User.findById(req.body.id, (err, users) => {
+  //         console.log(JSON.stringify(users))
+  //         users.enableAccount=true
+  //         users.save(function(err){
+  //           if(err){
+  //             res.status(400).json({ error: 'Something Went Wrong' });
+  //           }
+  //           else{
+  //             res.json({SuccessMessage:"Enabled"})
+  //           }
+  //         })
+  //     })
+  //  })
   // Send email from contact form
   communicationRoutes.post('/contact', CommunicationController.sendContactForm);
 

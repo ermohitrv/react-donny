@@ -16,6 +16,12 @@ var callback = function () {
 };
 
 class Login extends Component {
+  constructor(props){
+    super(props);
+    this.state={
+      SuccessMessage:""
+    }
+  }
   handleFormSubmit(formProps) {
     try{
       this.props.loginUser(formProps).then(
