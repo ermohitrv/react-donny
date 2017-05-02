@@ -17,6 +17,7 @@ var callback = function () {
 };
 
 class Login extends Component {
+
     
  constructor(props, context) {
         super(props, context);
@@ -26,6 +27,7 @@ class Login extends Component {
     }   
     
     
+
   handleFormSubmit(formProps) {
     try{
       if($('#login_form').valid()){
