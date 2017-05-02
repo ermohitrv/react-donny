@@ -107,13 +107,21 @@ exports.send_recording = function (req, res, next) {
               } else {
                   bind['status'] = 1;
                   bind['archive_url'] = archive;
+                  
+                    var smtpTransport = nodemailer.createTransport("SMTP",{
+                        service: "Gmail",
+                        auth: {
+                            user: config.gmailEmail,
+                            pass: config.gmailPassword
+                        }
+                    });
 
                     /* email for session requester */
                     var html = 'Hello , <br> You have new voice message from email: '+userEmail;
                     html += '<p>Clicke here to listen : </p>'+archive.url;
 
 
-                    expertEmail = 'avadhesh_bhatt@rvtechnologies.co.in';
+                    //expertEmail = 'avadhesh_bhatt@rvtechnologies.co.in';
                     //expertEmail = 'mohit@rvtechnologies.co.in';
 
                     var mailOptions = {
@@ -122,16 +130,25 @@ exports.send_recording = function (req, res, next) {
                         subject: "Donnys List - New Voice Message",
                         html   : html
                     };
-
-                    nodemailer.mail(mailOptions, function(error, info)  {
+                    
+                    smtpTransport.sendMail(mailOptions, function(error, info){
                         if (error) {
                             console.log('*** nodemailer error ***'+error);
                         } else{
-                            console.log('*** nodemailer success *** Message %s sent: %s', info.messageId, info.response);
+                            console.log('*** nodemailer success *** Message %s', info.messageId);
                         }
                         //return res.json(bind);
-
                     });
+
+//                    nodemailer.mail(mailOptions, function(error, info)  {
+//                        if (error) {
+//                            console.log('*** nodemailer error ***'+error);
+//                        } else{
+//                            console.log('*** nodemailer success *** Message %s sent: %s', info.messageId, info.response);
+//                        }
+//                        //return res.json(bind);
+//
+//                    });
 
                     
                     /**** Save archive information to database ****/

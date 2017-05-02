@@ -11,6 +11,7 @@
   "dependencies": {
     "axios": "^0.13.1",
     "jquery": "^3.1.1",
+    "json-loader": "^0.5.4",
     "jsonwebtoken": "^7.3.0",
     "lodash": "^4.6.1",
     "moment": "^2.13.0",
@@ -19,6 +20,7 @@
     "passport-facebook": "^2.1.1",
     "react": "~15.2.1",
     "react-bootstrap": "^0.30.8",
+    "react-bs-notifier": "^4.3.2",
     "react-chatview": "^0.1.1",
     "react-cookie": "^0.4.7",
     "react-dom": "~15.2.1",

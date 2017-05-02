@@ -498,3 +498,8 @@ div#publisherRecordAudio .OT_archiving.OT_edge-bar-item .OT_archiving-light-box 
 .review_column span.fa-star-o:before{color:#999;}
 .review_column span.fa-2x{color:goldenrod;}
 .wrapper.blur_page{-webkit-filter: blur(3px);filter:blur(3px);-moz-filter: blur(3px);-ms-filter: blur(3px);}
+.footer_action_btns ul li.video_session_call_btn a{  background-size: 30px 30px; background-repeat: no-repeat; background-position: center center }
+.footer_action_btns ul li.start_video_session_call a { background-color: #398439; background-image: url('/src/public/img/call_pick_up.png'); }
+.footer_action_btns ul li.end_video_session_call a { background-color: #e81123; background-image: url('/src/public/img/call_cancel.png'); }
+.footer_action_btns{ z-index: 9999 }
+div#subscribers{ position: absolute; }

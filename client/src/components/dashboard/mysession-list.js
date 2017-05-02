@@ -24,6 +24,7 @@ class MysessionList extends Component {
               <div className="row">
                 <div className="expert-list-inner-wrap">
                    <div className="col-sm-12">
+                        Session list comes here.
                    </div>
                  </div>
                </div>

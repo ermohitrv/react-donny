@@ -29,10 +29,14 @@ class HeaderTemplate extends Component {
               </a>
               <ul className="dropdown-menu">
                  <div className="log-arrow-up"></div>
-                    { currentUser.role == 'Expert' ?  <li><Link href={"/mysession/"+currentUser.slug}><i className="fa fa-desktop"></i> my session</Link></li> : ''} 
-                  { currentUser.role == 'Expert' ?  <li><Link href="/mysession-list"><i className="fa fa-desktop"></i> sessions history</Link></li> : ''} 
-                  { currentUser.role == 'Expert' ?   <li><Link href="/recordings"><i className="fa fa-microphone"></i> recordings </Link></li> : '' }
-                 <li><Link href="/profile"><i className="fa fa-user"></i> profile</Link></li>
+                    { currentUser.role == 'Expert' ?  <li><Link to={"/mysession/"+currentUser.slug}><i className="fa fa-desktop"></i> my session</Link></li> : ''} 
+                  { currentUser.role == 'Expert' ?  <li><Link to="/mysession-list"><i className="fa fa-history" aria-hidden="true"></i> sessions history</Link></li> : ''} 
+                  { currentUser.role == 'Expert' ?   <li><Link to="/recordings"><i className="fa fa-microphone"></i> recordings </Link></li> : '' }
+                 <li><Link to="/profile"><i className="fa fa-user"></i> profile</Link></li>
+                 
+                   { currentUser.role == 'User' ?  <li><Link to="/dashboard/my-reviews"><i className="fa fa-commenting-o" aria-hidden="true"></i> my reviews</Link></li> : ''}  
+                   { currentUser.role == 'Expert' ?  <li><Link to="/dashboard/session-reviews"><i className="fa fa-commenting-o" aria-hidden="true"></i> session reviews</Link></li> : '' }
+                            
                  <li><Link to="/update-profile"><i className="fa fa-suitcase" title="Update Profile"></i> update profile</Link></li>
                  <li><Link to="logout"><i className="fa fa-key" ></i> logout</Link></li>
               </ul>

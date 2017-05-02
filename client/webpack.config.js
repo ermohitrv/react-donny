@@ -18,7 +18,9 @@ const config = {
       {
         test: /\.scss$/,
         loader: ExtractTextPlugin.extract('css!sass'),
-      }],
+      },
+      { test: /\.json$/, loader: "json-loader" }
+        ],
   },
   devServer: {
     historyApiFallback: true,

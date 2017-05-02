@@ -17,6 +17,7 @@ const socket = actions.socket;
 import Loader from './loader';
 import SessionWhiteboard from './session-whiteboard';
 import UserReview from './user-review';
+import { AlertList, Alert, AlertContainer } from "react-bs-notifier";
 
 class SessionPage extends Component {
   constructor(props) {
@@ -36,16 +37,23 @@ class SessionPage extends Component {
       streams : {},
       sessionDate : "",
       sessionObj: '',
+      publisherObj: '',
       currentUser : '',
       time: {},
       seconds: 1800,
-      showUserReviewModal: false
+      showUserReviewModal: false,
+      sessionStartEndBtn: 'start',
+      isShowingInfoAlert: false,
+      infoAlertText: '',
+      isExpertStartedSession: false,
+      refreshIntervalId: ''
     };
 
     //this.state = { time: {}, seconds: 1800 };
     //this.state = { time: {}, seconds: 310 };
     this.timer = 0;
     this.startTimer = this.startTimer.bind(this);
+    this.stopTimer  = this.stopTimer.bind(this);
     this.countDown = this.countDown.bind(this);
 
     this.props.protectedTest();
@@ -98,9 +106,8 @@ class SessionPage extends Component {
 		  .catch(err => {});
           
         // set current user cookie
-        this.state.currentUser = cookie.load('user');
-        
-    
+    this.state.currentUser = cookie.load('user');
+    this.startVideoSession = this.startVideoSession.bind(this);
   }
 
   handleFormSubmit(formProps) {
@@ -108,6 +115,7 @@ class SessionPage extends Component {
   }
 
   componentWillMount() {
+    const self = this;  
     const currentUser = cookie.load('user');
     var expertEmail = "avadhesh_bhatt@rvtechnologies.co.in",
         userEmail = currentUser.email,
@@ -119,6 +127,7 @@ class SessionPage extends Component {
 
     axios.post(`${API_URL}/createVideoSession`, { expertEmail, userEmail, sessionOwner })
 		  .then(res => {
+               console.log('*** createVideoSession ***');       
         this.setState({sessionId  : res.data.sessionId });
         this.setState({apiToken   : res.data.token });
         var errorList = {};
@@ -131,9 +140,36 @@ class SessionPage extends Component {
             sessionObj: session
         });
         
+        
+        
+        session.on('signal:video_session_start', function(event){
+            if(event.from.id != session.connection.connectionId){
+                console.log('*** Signal sent from connection '+ event.from.id);
+                self.setState({
+                    isShowingInfoAlert: true,
+                    infoAlertText: 'Expert has started session! be ready.',
+                    isExpertStartedSession: true
+                });
+                self.state.sessionObj.publish(self.state.publisherObj);
+                self.startTimer();
+            }
+        });
+        
+        session.on('signal:video_session_end', function(event){
+            if(event.from.id != session.connection.connectionId){
+                console.log('*** Signal sent from connection '+ event.from.id);
+                console.log('signal:video_session_end');
+            }
+        });
+        
         session.on('streamCreated', function(event) {
 
-          console.log('streamCreated');
+          //console.log('streamCreated'+ event.stream.connection.connectionId );
+            if(event.stream.connection.connectionId == session.connection.connectionId){
+                console.log('*** streamCreated same connectiond id ***');
+            } else {
+                console.log('*** streamCreated different connectiond id ***');
+            }
 
           var subContainer = document.createElement('div');
 
@@ -148,8 +184,10 @@ class SessionPage extends Component {
           console.log(event.stream);
           //this.state.streams.push(event.stream);
 
-          var options = {width: 200, height: 200, 'box-shadow':'0 2px 12px 1px rgba(0,0,0,.89)', insertMode: 'append'}
-          var subscriber = session.subscribe(event.stream, subContainer,options, function(error) {
+          //var options = {width: 200, height: 200, 'box-shadow':'0 2px 12px 1px rgba(0,0,0,.89)', insertMode: 'append'}
+          var options = {width: 200, height: 200, 'box-shadow':'0 2px 12px 1px rgba(0,0,0,.89)'}
+          //var subscriber = session.subscribe(event.stream, subContainer,options, function(error) {
+            var subscriber = session.subscribe(event.stream, 'subscribers' ,options, function(error) {
             if (error) {
               console.log(error.message);
               return;
@@ -165,7 +203,14 @@ class SessionPage extends Component {
             }
           });
         })
-        .on('connectionCreated', function (event) {
+        .on('streamDestroyed', function(event){
+            if(event.stream.connection.connectionId == session.connection.connectionId){
+                console.log('*** streamDestroyed same connectiond id ***');
+            } else {
+                console.log('*** streamDestroyed different connectiond id ***');
+            }
+            
+        }).on('connectionCreated', function (event) {
             connectionCount = connectionCount+1;
             if (event.connection.connectionId != session.connection.connectionId) {
               console.log('Another client connected. ' + connectionCount + ' total.');
@@ -173,7 +218,50 @@ class SessionPage extends Component {
         })
         .on('connectionDestroyed', function connectionDestroyedHandler(event) {
             connectionCount = connectionCount-1;
-            console.log('A client disconnected. ' + connectionCount + ' total.');
+            //console.log('A client disconnected. ' + connectionCount + ' total.');
+            if(session.connection.connectionId != event.connection.connectionId){
+                self.state.sessionObj.disconnect();
+                    self.setState({
+                        sessionStartEndBtn: 'start'
+                    });
+                    self.stopTimer();
+
+                    if(self.state.currentUser){
+                        if(self.state.currentUser.role == 'User'){
+                            //alert('session closed by user');
+                            self.setState({
+                                showUserReviewModal: true,
+                                isShowingInfoAlert: true,
+                                infoAlertText: 'Expert has ended session!'
+                                
+                            });
+
+                            $('.wrapper').addClass('blur_page');
+                        } else {
+                            //browserHistory.push('/');
+                        } 
+                    } 
+            }
+            
+        })
+        .on('sessionDisconnected', function(e){
+            console.log('*** sessionDisconnected ***');
+            self.stopTimer();
+            self.setState({
+                sessionStartEndBtn: 'start'
+            });
+
+            if(self.state.currentUser){
+                if(self.state.currentUser.role == 'User'){
+                    self.setState({
+                        showUserReviewModal: true
+                    });
+                    $('.wrapper').addClass('blur_page');
+                } else {
+                   //browserHistory.push('/');
+                } 
+            } 
+
         })
         .on('streamDestroyed', function(event) {
           console.log('streamDestroyed: '+event.reason+' - '+slug);
@@ -190,7 +278,10 @@ class SessionPage extends Component {
             console.log('connected');
             $('.Left_Panel').css('height',$('.mainContainer').height()+'px');
             var publisher = OT.initPublisher('45801242', 'publisher',{width:'100%', height:'603px'});
-            session.publish(publisher);
+            //session.publish(publisher);
+            self.setState({
+                publisherObj: publisher
+            });
             $('.session-page-container').show();
             $('.loader-center-ajax').hide();
             $('.Left_Panel').css('height',$('.mainContainer').height()+'px');
@@ -273,9 +364,21 @@ class SessionPage extends Component {
   }
 
   startTimer() {
-    if (this.timer == 0) {
-      this.timer = setInterval(this.countDown, 1000);
-    }
+//    if (this.timer == 0) {
+//      this.timer = setInterval(this.countDown, 1000);
+//      this.state.refreshIntervalId = this.timer;
+//    }
+        
+      if(!this.state.refreshIntervalId){
+        this.state.refreshIntervalId = setInterval(this.countDown, 1000);
+      }
+
+  }
+  stopTimer(){
+      clearInterval(this.state.refreshIntervalId);
+      this.setState({
+          refreshIntervalId: ''
+      });
   }
 
   countDown() {
@@ -300,25 +403,56 @@ class SessionPage extends Component {
   disconnect(e) {
     
     e.preventDefault();
-    this.state.sessionObj.disconnect();
-    console.log('publisher: '+publisher);
-    
     if(this.state.currentUser){
         if(this.state.currentUser.role == 'User'){
-            //alert('session closed by user');
-            this.setState({
-                showUserReviewModal: true
+            this.state.sessionObj.signal({ type: 'video_session_end', data: 'video call session end by user' }, function(err){
+                if(err){
+                    console.log('*** video session end by user : ERROR ***'+ JSON.stringify(err) );
+                } else {
+                    console.log('*** video session end by user : SUCCESS ***');
+                }
             });
             
-            $('.wrapper').addClass('blur_page');
+        } else {
+            this.state.sessionObj.signal({ type: 'video_session_end', data: 'video call session end by expert' }, function(err){
+                if(err){
+                    console.log('*** video session end by expert: ERROR ***'+ JSON.stringify(err) );
+                } else {
+                    console.log('*** video session end by expert: SUCCESS ***');
+                }
+            });
         } 
     } 
+    this.state.sessionObj.disconnect();
     
-    
-    //session.disconnect();
-    /*if (this.state.publisher) {
-      this.state.session.unpublish(this.state.publisher);
-    }*/
+  }
+  
+  dismissAlert(){
+      console.log('*** dismissAlert ***');
+      this.setState({
+          isShowingInfoAlert: false
+      });
+  }
+  
+  startVideoSession(e){
+      e.preventDefault();
+      console.log('start video session');
+      const self = this;
+      
+      this.state.sessionObj.signal({ type: 'video_session_start', data: 'session started by expert' }, function(err){
+          if(err){
+              console.log('*** signal error ('+ err.name + '): '+ err.message);
+          } else{
+              self.state.sessionObj.publish(self.state.publisherObj);
+              console.log('*** signal sent ***');
+          }
+      });
+      
+      this.startTimer();
+      this.setState({
+          sessionStartEndBtn: 'end',
+          //isShowingInfoAlert: true
+      });
   }
   
   onSubmitReview(){
@@ -334,6 +468,22 @@ class SessionPage extends Component {
     
     
     
+  }
+  
+  showSessionCallBtn(){
+      
+      if(this.state.currentUser.role == 'Expert'){
+          return(
+            this.state.sessionStartEndBtn == 'start' ? <li className="video_session_call_btn start_video_session_call"><Link to="#" data-toggle="tooltip" title="Start Session"  onClick={ e => this.startVideoSession(e)}></Link></li> : <li className="video_session_call_btn end_video_session_call"><Link data-toggle="tooltip" title="End Session" to="javascript:void(0)" onClick={this.disconnect.bind(this)}></Link></li>
+          );
+      }
+      if(this.state.currentUser.role == 'User') {
+          return(
+            this.state.isExpertStartedSession  ?  <li className="video_session_call_btn end_video_session_call"><Link data-toggle="tooltip" title="End Session" to="javascript:void(0)" onClick={this.disconnect.bind(this)}></Link></li> : <li><Link to="#" style={{ visibility: 'hidden' }} ></Link></li>
+          );
+      }
+      
+      
   }
 
   render() {
@@ -388,7 +538,12 @@ class SessionPage extends Component {
                         {/*}<a data-toggle="modal" data-target="#myWhiteBoard" class="btn btn-primary btn_waitingtojoin"></a>{*/}
                         <a data-toggle="tooltip" title="White Board" href="javascript:void(0)"><i className="fa fa-pencil" aria-hidden="true"></i></a>
                       </li>
-                      { this.state.showEndCallOptions ? <li className="phone_call"><Link data-toggle="tooltip" title="End Session" to="javascript:void(0)" onClick={this.disconnect.bind(this)}><i className="fa fa-phone"></i></Link></li> : null }
+                      
+                        { this.showSessionCallBtn() }
+                        {/* this.state.sessionStartEndBtn == 'start' ? <li className="video_session_call_btn start_video_session_call"><Link to="#" data-toggle="tooltip" title="Start Session"  onClick={ e => this.startVideoSession(e)}></Link></li> : <li className="video_session_call_btn end_video_session_call"><Link data-toggle="tooltip" title="End Session" to="javascript:void(0)" onClick={this.disconnect.bind(this)}></Link></li> */}
+                        
+                        
+                      {/* this.state.showEndCallOptions ? <li className="phone_call"><Link data-toggle="tooltip" title="End Session" to="javascript:void(0)" onClick={this.disconnect.bind(this)}><i className="fa fa-phone"></i></Link></li> : null */}
                       <li className="clockicon" style={this.redAlertTiming(this.state.time.m)}><a data-toggle="tooltip" title="Session Time" href="javascript:void(0)"><i className="fa fa-clock-o" aria-hidden="true"></i> {this.state.sessionDate} - {this.state.time.m} : {this.state.time.s}</a></li>
                       { /* }
             					<li className="video_call"><a href="#"><i className="fa fa-video-camera" aria-hidden="true"></i></a></li>
@@ -398,6 +553,17 @@ class SessionPage extends Component {
             					<li className="ellipsismore"><a href="#"><i className="fa fa-ellipsis-h" aria-hidden="true"></i></a></li>
                       { */ }
             				</ul>
+                                        
+                        
+                        <AlertContainer position="top-right" >
+                            {this.state.isShowingInfoAlert ? (
+						<Alert timeout={5000} onDismiss={ this.dismissAlert.bind(this) } type="info" headline="Session Info">
+                                                    { this.state.infoAlertText }
+						</Alert>
+					) : null}
+                        </AlertContainer>
+                                
+                                
             			</div>
             		</div>
             	</div>
