@@ -238,7 +238,7 @@ class SessionPage extends Component {
 
                             $('.wrapper').addClass('blur_page');
                         } else {
-                            //browserHistory.push('/');
+                            browserHistory.push('/');
                         } 
                     } 
             }
@@ -258,7 +258,7 @@ class SessionPage extends Component {
                     });
                     $('.wrapper').addClass('blur_page');
                 } else {
-                   //browserHistory.push('/');
+                   browserHistory.push('/');
                 } 
             } 
 
