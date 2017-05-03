@@ -11,6 +11,8 @@ class SidebarMenuExpert extends Component {
         <ul className="nav nav-sidebar" id="menu">
           <li><Link to="/profile/edit"><i className="glyphicon glyphicon-list-alt"></i> <span className="collapse in hidden-xs"> Edit Profile</span></Link></li>
           <li><Link to="/dashboard/inbox"><i className="glyphicon glyphicon-list-alt"></i> <span className="collapse in hidden-xs"> Inbox</span></Link></li>
+          <li><Link to="/dashboard/session-reviews"><i className="fa fa-commenting-o" aria-hidden="true"></i> session reviews</Link></li>
+          <li><Link to="/mysession-list"><i className="fa fa-desktop"></i> sessions history</Link></li>
         </ul>
       </div>
     );

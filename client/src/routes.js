@@ -47,6 +47,8 @@ import RequireAuth from './components/auth/require_auth';
 
 import MysessionList from './components/dashboard/mysession-list';
 import Recordings from './components/pages/experts-recordings';
+import MyReviews from './components/dashboard/my-reviews';
+import SessionReviews from './components/dashboard/session-reviews';
 
 export default (
   <Route path="/" component={App}>
@@ -65,6 +67,8 @@ export default (
     <Route path="billing/settings" component={RequireAuth(BillingSettings)} />
 
     <Route path="profile" component={RequireAuth(ViewProfile)} />
+    
+    
     <Route path="expert/:category/:slug" component={ViewExpert} />
 
     <Route path="session/:slug" component={RequireAuth(UserSessionPage)} />
@@ -73,7 +77,7 @@ export default (
     <Route path="tokbox/join/:slug" component={TokboxPage} />
 
     <Route path="mysession-list" component={MysessionList} />
-    <Route path="recordings" component={Recordings} />
+    <Route path="recordings" component={RequireAuth(Recordings) } />
 
     <Route path="admin" component={RequireAuth(AdminDashboard)} />
 
@@ -86,6 +90,9 @@ export default (
       <Route path="conversation/new" component={RequireAuth(ComposeMessage)} />
       <Route path="conversation/view/:conversationId" component={RequireAuth(Conversation)} />
       <Route path="sessionsList" component={RequireAuth(AdminSessionList)} />
+      <Route path="my-reviews" component={RequireAuth(MyReviews)} /> 
+      <Route path="session-reviews" component={RequireAuth(SessionReviews)} />
+
     </Route>
 
     <Route path="*" component={NotFoundPage} />

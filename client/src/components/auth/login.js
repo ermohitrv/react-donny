@@ -81,10 +81,11 @@ class Login extends Component {
   }
   
   renderRequiredLogin_for_session(){
+      const requiredLogin_msg = cookie.load('requiredLogin_for_session');
       cookie.remove('requiredLogin_for_session', { path: '/' });
       return (
             <div className="alert alert-warning">
-                <strong>Please login to start session </strong>
+                <strong>{ requiredLogin_msg } </strong>
                 <a href="#" className="close" data-dismiss="alert" aria-label="close" title="close">×</a>
             </div>
         );

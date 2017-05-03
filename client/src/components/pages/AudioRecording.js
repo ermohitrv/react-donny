@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link, IndexLink } from 'react-router';
+import { Link, IndexLink, browserHistory } from 'react-router';
 import cookie from 'react-cookie';
 import { Modal, Button, Panel } from 'react-bootstrap';
 import * as actions from '../../actions/messaging';
@@ -154,6 +154,13 @@ class AudioRecording extends Component {
     
     
  audioRecordingPopup(mode){
+     
+   if(! this.state.currentUser){ // if user is not logged in
+       browserHistory.push('/login');
+       cookie.save('requiredLogin_for_session', 'Please login to start recording', { path: '/' });
+       return;
+   }
+        
     const self = this;
     const expertEmail = this.state.expertEmail;
     const userEmail = this.state.currentUser.email;

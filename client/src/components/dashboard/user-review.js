@@ -104,9 +104,9 @@ class UserReview extends Component {
         return(
             <div>
             {/* Expert review modal : START  */}   
-            <Modal className="modal-container user-review-modal" show={this.props.showUserReviewModal} onHide={this.close} animation={true} bsSize="small">
+            <Modal className="modal-container user-review-modal" show={this.props.showUserReviewModal} onHide={this.close} animation={true} bsSize="">
                <Modal.Header>
-                   <Modal.Title>Review</Modal.Title>
+                   <Modal.Title>Give your review</Modal.Title>
                </Modal.Header>
                <Modal.Body>
                

@@ -114,6 +114,7 @@ module.exports = function (app) {
 
   // View user profile route
   userRoutes.get('/:userId', requireAuth, UserController.viewProfile);
+  userRoutes.get('/getUserReviews/:userEmail', UserController.getUserReviews);
 
   // Test protected route
   apiRoutes.get('/protected', requireAuth, (req, res) => {
