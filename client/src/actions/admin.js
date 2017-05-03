@@ -10,12 +10,12 @@ function handleResponse(response){
 
 	if(response.ok){
 		console.log("OK RESPONSE IN Teacher ACTION")
-		console.log("$$$$$$$ $$$$$$$$$$$$ $$$$$$$$$$$$ $$$$$$$$$$$$$$ "+response)
+		// console.log("$$$$$$$ $$$$$$$$$$$$ $$$$$$$$$$$$ $$$$$$$$$$$$$$ "+response)
 		return response.json();
 	}
 	else{
 		console.log("RESPONSE NOT OK in TEACHER ACTIOn")
-		console.log(response)
+		// console.log(response)
 		let error = new Error(response.statusText);
 		error.response = response;
 		throw error
@@ -34,8 +34,8 @@ export function getUsersList(){
 		}).then(function(res){
 			// console.log("%%%%%%%%%%%%")
 			var x = res.json()
-// console.log(x)
-return x
+//  		console.log(x)
+			return x
 
 		}).then(function(res){/*console.log(res);*/ return res})
 		//}).then(handleResponse).then(data=>dispatch(getschool(data)));;
@@ -63,20 +63,80 @@ export function UnBanMe(data){
 	console.log("HIIIII" +data)
 	return dispatch =>{
 		return fetch("http://localhost:3000/api/UnBanHim", {
-    method: 'POST',
-    headers: {'Content-Type':'application/x-www-form-urlencoded'}, // this line is important, if this content-type is not set it wont work
-    body: 'id='+data
-}).then(function(res){
-			console.log("%%%%%%%%%%%%")
-			var x = res.json()
-			console.log(x)
-			return x
+	    method: 'POST',
+	    headers: {'Content-Type':'application/x-www-form-urlencoded'}, // this line is important, if this content-type is not set it wont work
+	    body: 'id='+data
+		}).then(function(res){
+				console.log("%%%%%%%%%%%%")
+				var x = res.json()
+				console.log(x)
+				return x
 
-		}).then(function(res){console.log(res); return res})
+			}).then(function(res){console.log(res); return res})
 		//}).then(handleResponse).then(data=>dispatch(getschool(data)));;
 	}
 
 }
+export function getTheUserInformation(data){
+	// console.log(data)
+	// console.log("&&&&&")
+	return dispatch =>{
+		return fetch("http://localhost:3000/api/getuserInfo/"+data.id, {
+	    method: 'POST',
+	    headers: {'Content-Type':'application/x-www-form-urlencoded'}, // this line is important, if this content-type is not set it wont work
+	    body: 'id='+data.id
+		}).then(function(res){
+				// console.log("%%%%%%%%%%%%")
+				var x = res.json()
+				// console.log(x)
+				return x
+
+			}).then(function(res){console.log(res); return res})
+		//}).then(handleResponse).then(data=>dispatch(getschool(data)));;
+	}
+}
+export function AdminUpdateExpert(data){
+	// console.log("^^^^^^^^^^^^^^^^^^^^^^^^")
+	// console.log(data)
+	// console.log("&&&&&")
+	return dispatch =>{
+		return fetch("http://localhost:3000/api/UpdateUserInfo", {
+	    method: 'POST',
+	    headers: {'Content-Type':'application/json'}, // this line is important, if this content-type is not set it wont work
+	    // body: 'id='+data.id
+	    body:JSON.stringify(data)
+		}).then(function(res){
+				// console.log("%%%%%%%%%%%%")
+				var x = res.json()
+				// console.log(x)
+				return x
+
+			}).then(function(res){console.log(res); return res})
+		//}).then(handleResponse).then(data=>dispatch(getschool(data)));;
+	}
+}
+// GetActiveSessions
+export function GetActiveSessions(data){
+	console.log("^^^^^^^^^^^^^^^^^^^^^^^^")
+	// console.log(data)
+	// console.log("&&&&&")
+	return dispatch =>{
+		return fetch("http://localhost:3000/api/GetActiveSessions", {
+	    method: 'POST',
+	    headers: {'Content-Type':'application/json'}, // this line is important, if this content-type is not set it wont work
+	    // body: 'id='+data.id
+	    // body:JSON.stringify(data)
+		}).then(function(res){
+				// console.log("%%%%%%%%%%%%")
+				var x = res.json()
+				// console.log(x)
+				return x
+
+			}).then(function(res){/*console.log("@@@");console.log(res); */return res})
+		//}).then(handleResponse).then(data=>dispatch(getschool(data)));;
+	}
+}
+
 // export function getUsersList() {
 //   console.log("getUsersList")
 //   console.log({API_URL})

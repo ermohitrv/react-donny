@@ -18,7 +18,7 @@ class SidebarMenuAdmin extends Component {
             <li>
                 <a href="javascript:void(0)" data-target="#item2" data-toggle="collapse"><i className="fa fa-list"></i> <span className="collapse in hidden-xs">Session Management <span className="caret"></span></span></a>
                 <ul className="nav nav-stacked collapse" id="item2">
-                    <li><Link to="#">List Active Sessions</Link></li>
+                    <li><Link to="/dashboard/sessionsList">List Active Sessions</Link></li>
                 </ul>
             </li>
             <li><Link to="/profile/edit"><i className="glyphicon glyphicon-list-alt"></i> <span className="collapse in hidden-xs"> Edit Profile</span></Link></li>

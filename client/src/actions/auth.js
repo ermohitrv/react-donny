@@ -10,13 +10,14 @@ import { AUTH_USER, AUTH_ERROR, UNAUTH_USER, FORGOT_PASSWORD_REQUEST, RESET_PASS
 
 //login using native auth
 export function loginUser({ email, password }) {
+  // console.log("AUTH")
   return function (dispatch) {
     if(email !== undefined && password !== undefined){
       axios.post(`${API_URL}/auth/login`, { email, password })
       .then((response) => {
         console.log(JSON.stringify(response))
-        alert("HI")
-                console.log("&&^&&^&^*^&*^&^*&")
+        // alert("HI")
+        // console.log("&&^&&^&^*^&*^&^*&")
         cookie.save('token', response.data.token, { path: '/' });
         cookie.save('user', response.data.user, { path: '/' });
         
@@ -24,7 +25,8 @@ export function loginUser({ email, password }) {
         dispatch({ type: AUTH_USER });
       })
       .catch((error) => {
-        console.log("&&^&&^&^*^&*^&^*&")
+        // alert("ERR")
+        // console.log("&&^&&^&^*^&*^&^*&")
         errorHandler(dispatch, error.response, AUTH_ERROR);
       });
     }else{

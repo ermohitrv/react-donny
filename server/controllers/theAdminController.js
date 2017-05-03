@@ -18,7 +18,7 @@ var transporter = nodemailer.createTransport({
 
 exports.theAdminsUserList = function(req, res) {
 	    console.log("this")
-	      User.find({role:"User"}, (err, users) => {
+	      User.find({role:{$ne :["Admin"]}}, (err, users) => {
 	        if (err) {
 	          res.status(400).json({ error: 'No user could be found for this ID.' });
 	          return next(err);

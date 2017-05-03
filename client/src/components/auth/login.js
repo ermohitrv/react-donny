@@ -31,16 +31,20 @@ class Login extends Component {
   handleFormSubmit(formProps) {
     try{
       if($('#login_form').valid()){
+        // console.log("VALID IN LOGIN>JS")
+        // console.log(formProps)
         this.props.loginUser(formProps).then(
          (response)=>{
+          // console.log("%%%%%%%%%%% login.js %%%%%%%%%%%");
            console.log('response: '+JSON.stringify(response));
          },
          (err) => err.response.json().then(({errors})=> {
+          // console.log("%%%%%%%%%%% ERRR login.js %%%%%%%%%%%");
            console.log('err: '+JSON.stringify(err));
          })
        )
       }
-    }catch(e){}
+    }catch(e){console.log("Catch")}
   }
 
   // specifying verify callback function

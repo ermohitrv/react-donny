@@ -76,6 +76,8 @@ const UserSchema = new Schema({
 
 // Pre-save of user to database, hash password if password is modified or new
 UserSchema.pre('save', function (next) {
+  // console.log("))))*************************************************** PASSWORD")
+
   const user = this,
     SALT_FACTOR = 5;
 
@@ -86,6 +88,9 @@ UserSchema.pre('save', function (next) {
 
     bcrypt.hash(user.password, salt, null, (err, hash) => {
       if (err) return next(err);
+      // console.log("_____________")
+      // console.log(user.password)
+
       user.password = hash;
       next();
     });

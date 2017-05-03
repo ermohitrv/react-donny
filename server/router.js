@@ -9,12 +9,19 @@ const ExpertChatController = require('./controllers/expertchat');
 const CommunicationController = require('./controllers/communication');
 const StripeController = require('./controllers/stripe');
 const VideoSessionStripeController = require('./controllers/video-session-stripe');
+const MainSettings                 = require('./config/main')
+
+
+var bcrypt      = require('bcryptjs')
+const saltRounds = 10;
+var salt  = bcrypt.genSaltSync(saltRounds);
 
 // const AdminsUsersList = require('./controllers/getlist')
 
 const AdminController       = require('./controllers/theAdminController')
 
 var User = require('./models/user')
+var VideoSession =require('./models/videosession')
 
 const express = require('express');
 const passport = require('passport');
@@ -233,6 +240,107 @@ module.exports = function (app) {
 
   apiRoutes.get('/getUsersList', AdminController.theAdminsUserList);
   apiRoutes.post('/BanHim', AdminController.AdminToBanOrUnBanUser)
+  // /api/getuserInfo/
+    apiRoutes.post('/getuserInfo/:id', function(req,res){
+      // console.log("HI")
+      // console.log(req.params.id)
+      User.findById(req.params.id,function(err, user){
+        if(err){
+          res.json({FailureMessage:"Sorry "})
+        }
+        else{
+          res.json({user:user})
+        }
+
+      })
+    })
+
+    apiRoutes.post('/UpdateUserInfo', function(req,res){
+      // console.log(JSON.stringify(req.body))
+      const {email,firstName,lastName,password,userBio,expertRates,expertCategories,expertContact,expertRating,expertFocusExpertise,yearsexpertise} = req.body
+// console.log(email)
+      User.findOne({"email":email}, function(err, user){
+        // console.log(user)
+        // console.log("&&&&&&&&&&&&&&&    "+user.password)
+
+// console.log("$#%$#%$#%$#%$#")
+// console.log(user)
+        user.profile.firstName  = firstName
+        user.profile.lastName   = lastName
+        if(user.password!=password){
+          // user.password=password
+          console.log("Pass is different")
+          // console.log(MainSettings.SALT_FACTOR)
+          // var hash = bcrypt.hashSync(password, MainSettings.SALT_FACTOR);
+          // console.log(hash)
+          // var z= bcrypt.compareSync(password, hash);
+          user.password = password
+          //console.log("))))))))))))))))))))))) "+z)
+        }
+        else{
+          console.log("Pass is same")
+        }
+        user.userBio            = userBio
+        user.expertRates        = expertRates  
+        user.expertCategories   = expertCategories
+        user.contact           = expertContact
+        user.expertRating            = expertRating
+        user.expertFocusExpertise    = expertFocusExpertise
+        user.yearsexpertise          = yearsexpertise
+        user.save()
+
+      })
+
+
+      // var x = JSON.parse(req.body)
+      // console.log(x)
+
+      res.json({"m":"working"})
+
+    })
+
+// /GetActiveSessions
+    apiRoutes.post('/GetActiveSessions', function(req,res){
+        // User.find({videoSessionAvailability:"true", role:"Expert"}, function(err, AllUsers){
+        //   if(err){
+        //      res.json({"m":"working1"})
+        //   }
+        //   else{
+        //           console.log(JSON.stringify(AllUsers))
+        //           res.json({"AllUsers":AllUsers})
+        //   }
+        // })
+        User.aggregate(   
+                        [
+                            {
+                                $match: { role: 'Expert', videoSessionAvailability:true }
+                            },                         
+                            {
+                              $lookup:
+                                 {
+                                    from: "videosessions",
+                                    localField: "email",
+                                    foreignField: "expertEmail",
+                                    as: "AggregatedDetails"
+                                }
+                              },
+                              { $match:{
+                                    "AggregatedDetails.sessionCompletionStatus":"UNCOMPLETED","AggregatedDetails.sessionStatus":"ACTIVE"
+                                  }
+                              },
+                               { $sort: { sessionCreationDate: -1 } },
+                               {$limit:1}
+                          ], function(err, allusers){
+                                // console.log(JSON.stringify(allusers))
+                                 res.json({AllUsers:allusers})
+                             }
+
+                             )
+
+    })
+
+
+
 
   // apiRoutes.post('/UnBanHim', function(req, res){
   //   console.log("********************")

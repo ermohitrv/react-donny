@@ -232,16 +232,53 @@ exports.createExpert = function(req, res, next) {
       snapchatURL
     });
 
-    user.save((err, user) => {
-      if (err) { return next(err); }
+    User.findOne({slug:slug}, function(err, slugfound){
+      if(err){
 
-        // Subscribe member to Mailchimp list
-        // mailchimp.subscribeToNewsletter(user.email);
-      res.status(201).json({
-        user: user,
-        message: 'User created successfully'
-      });
-    });
+      }
+      else if(slugfound && slugfound!=null && slugfound!=undefined && slugfound!=""){
+        slug= slug+((new Date()).getHours()).toString()+((new Date()).getMinutes()).toString()+((new Date()).getSeconds()).toString()+((new Date()).getMilliseconds()).toString()
+        user.slug= slug
+            user.save((err, user) => {
+              if (err) { return next(err); }
+
+                // Subscribe member to Mailchimp list
+                // mailchimp.subscribeToNewsletter(user.email);
+              res.status(201).json({
+                user: user,
+                message: 'User Created Successfully'
+              });
+            });
+      }
+      else{
+        console.log("Expert Pass")
+        user.save((err, user) => {
+          if (err) { return next(err); }
+
+            // Subscribe member to Mailchimp list
+            // mailchimp.subscribeToNewsletter(user.email);
+          res.status(201).json({
+            user: user,
+            message: 'User Created Successfully'
+          });
+        });
+      }
+
+
+
+    })
+
+    // user.save((err, user) => {
+    //   if (err) { return next(err); }
+
+    //     // Subscribe member to Mailchimp list
+    //     // mailchimp.subscribeToNewsletter(user.email);
+    //   res.status(201).json({
+    //     user: user,
+    //     message: 'User created successfully'
+    //   });
+    // });
+
   });
 };
 

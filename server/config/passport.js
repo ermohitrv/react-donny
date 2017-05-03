@@ -181,9 +181,9 @@ const jwtLogin = new JwtStrategy(jwtOptions, (payload, done) => {
 
     if (user) {
       console.log("***********")
-      console.log(JSON.stringify(user))
-      console.log("***********")
-      console.log("***********")
+      // console.log(JSON.stringify(user))
+      // console.log("***********")
+      // console.log("***********")
       console.log("***********"+user.enableAccount)
       if(user.enableAccount && user.enableAccount!==null && user.enableAccount!==undefined && user.enableAccount===true)
       {

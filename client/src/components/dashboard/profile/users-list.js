@@ -244,7 +244,7 @@ class TableRow extends React.Component{
 			<tr style={{background:color(this.props.index)}}>
 
 				<td><h4 style={{"paddingLeft":10+"px"}}>{this.props.data.profile.firstName}</h4></td>
-				<td><h4>{this.props.data.profile.lastName}</h4></td>
+				<td><h4>{this.props.data.role && this.props.data.role!=null && this.props.data.role!=undefined && this.props.data.role==="Expert"?<a href={"/dashboard/userslist/"+this.props.data._id}>{this.props.data.profile.lastName}</a>:this.props.data.profile.lastName}</h4></td>
 				<td><h4>{this.props.data.email}</h4></td>
 				<td><h4>{this.props.data.role}</h4></td>
 				<td><h4>{this.props.data.enableAccount===true? "Yes":"No"}</h4></td>
